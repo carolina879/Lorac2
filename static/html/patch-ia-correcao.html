@@ -1,0 +1,168 @@
+<script>
+
+
+(function aplicarPatchCorrecaoIA() {
+
+  
+  function patch() {
+    if (!window.ExSys || !window.ExSys.openResultados) {
+      return setTimeout(patch, 200);
+    }
+
+    const _openResultadosOriginal = window.ExSys.openResultados;
+
+    window.ExSys.openResultados = function(turmaId, exId) {
+     
+      _openResultadosOriginal(turmaId, exId);
+
+      
+      setTimeout(() => injetarBotoesIA(turmaId, exId), 50);
+    };
+
+   
+    if (!window.ExSys._gerarCorrecaoIA) {
+      window.ExSys._gerarCorrecaoIA = _gerarCorrecaoIA;
+    }
+
+    console.log('✅ Patch correção IA aplicado');
+  }
+
+  function injetarBotoesIA(turmaId, exId) {
+  
+    const forms = document.querySelectorAll('.ex-corrigir-form');
+    forms.forEach(form => {
+
+      if (form.querySelector('.btn-ia-patch')) return;
+
+     
+      const notaInput = form.querySelector('input[id^="ex-nota-"]');
+      if (!notaInput) return;
+
+
+      const partes = notaInput.id.replace('ex-nota-', '').split('-');
+      const qi = parseInt(partes[partes.length - 1]);
+      const safeId = partes.slice(0, partes.length - 1).join('-');
+
+     
+      const state = window._ExercicioState;
+      if (!state) return;
+      const exMap = (state.exercicios || {})[turmaId] || {};
+      const ex = exMap[exId];
+      if (!ex) return;
+
+      const userId = Object.keys(ex.respostas || {}).find(uid =>
+        uid.replace(/\W/g, '_') === safeId
+      );
+      if (!userId) return;
+
+     
+      const btn = document.createElement('button');
+      btn.className = 'btn-secondary small btn-ia-patch';
+      btn.id = `btn-ia-${safeId}-${qi}`;
+      btn.style.cssText = `
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, rgba(80,140,220,.2), rgba(120,80,220,.2));
+        border: 1px solid rgba(80,140,220,.4);
+        color: #8ab4f8;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        justify-content: center;
+      `;
+      btn.innerHTML = '🤖 Sugestão IA — preencher nota e feedback';
+      btn.onclick = () => _gerarCorrecaoIA(turmaId, exId, userId, qi);
+
+      form.insertBefore(btn, notaInput);
+    });
+  }
+
+
+  async function _gerarCorrecaoIA(turmaId, exId, userId, qi) {
+    const state = window._ExercicioState;
+    if (!state) { alert('Estado do exercício não encontrado.'); return; }
+
+    const exMap = (state.exercicios || {})[turmaId] || {};
+    const ex = exMap[exId];
+    if (!ex) { alert('Exercício não encontrado.'); return; }
+
+    const q  = ex.questoes?.[qi];
+    const r  = ex.respostas?.[userId]?.respostas?.[qi];
+
+    if (!q || q.tipo !== 'escrever') {
+      alert('Questão não é dissertativa.'); return;
+    }
+    if (!r?.texto?.trim()) {
+      alert('O aluno não respondeu esta questão ainda.'); return;
+    }
+
+    const safeId     = userId.replace(/\W/g, '_');
+    const btn        = document.getElementById(`btn-ia-${safeId}-${qi}`);
+    const notaInput  = document.getElementById(`ex-nota-${safeId}-${qi}`);
+    const comentInput = document.getElementById(`ex-coment-${safeId}-${qi}`);
+
+    const originalHtml = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.textContent = '🤖 Gerando sugestão...'; }
+
+    try {
+      const valorMax = q.valor ?? 10;
+      const prompt = `Questão: "${q.enunciado}"\nResposta do aluno: "${r.texto}"\n\nAtribua uma nota de 0 a ${valorMax} e forneça um feedback construtivo em português. Responda APENAS com JSON puro: {"nota": 8.5, "feedback": "Texto do feedback..."}`;
+
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: prompt,
+          context: 'Você é um professor que corrige questões dissertativas de forma justa e construtiva. Responda sempre em JSON puro, sem markdown.'
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Erro ${res.status} na API`);
+      }
+
+      const data = await res.json();
+
+
+      const raw = (data.response || '').replace(/```json|```/g, '').trim();
+      const match = raw.match(/\{[\s\S]*\}/);
+      const correction = JSON.parse(match ? match[0] : raw);
+
+      const nota = Math.max(0, Math.min(parseFloat(correction.nota) || 0, valorMax));
+
+      if (notaInput)   notaInput.value   = nota;
+      if (comentInput) comentInput.value = correction.feedback || '';
+
+    
+      [notaInput, comentInput].forEach(el => {
+        if (!el) return;
+        el.style.transition = 'border-color .3s';
+        el.style.borderColor = '#60c080';
+        setTimeout(() => el.style.borderColor = '', 3000);
+      });
+
+      if (typeof window._exToast === 'function') {
+        window._exToast('✅ Nota e feedback sugeridos pela IA! Revise e salve.', 'success');
+      }
+
+    } catch (e) {
+      console.error('Erro IA correção:', e);
+      if (typeof window._exToast === 'function') {
+        window._exToast('❌ Erro na IA: ' + e.message, 'error');
+      } else {
+        alert('Erro na IA: ' + e.message);
+      }
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+    }
+  }
+
+  patch();
+})();
+</script>

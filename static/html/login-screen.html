@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>el="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+  
+    :root {
+      --bg-0:   #0f0d0a;
+      --bg-1:   #161310;
+      --bg-2:   #1e1a15;
+      --bg-3:   #27211a;
+      --bg-4:   #322a21;
+      --bg-5:   #3d342a;
+      --accent:      #e8a04a;
+      --accent-soft: rgba(232,160,74,.12);
+      --accent-glow: 0 0 32px rgba(232,160,74,.25);
+      --accent-dim:  rgba(232,160,74,.08);
+      --terracotta: #c96a4a;
+      --sage:       #7a9e7e;
+      --dust:       #b8a89a;
+      --ink:        #d4c8be;
+      --paper:      #f0e8de;
+      --text-0: #f0e8de;
+      --text-1: #b8a89a;
+      --text-2: #7a6e65;
+      --text-3: #4d433c;
+      --border:        rgba(255,220,170,.07);
+      --border-warm:   rgba(232,160,74,.22);
+      --border-subtle: rgba(255,220,170,.04);
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --font-mono:    'DM Mono', 'Courier New', monospace;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --ease-out:   cubic-bezier(.16,1,.3,1);
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+      --t-fast: .12s;
+      --t-base: .22s;
+      --t-slow: .4s;
+      --shadow-md: 0 4px 16px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,.6), 0 4px 12px rgba(0,0,0,.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-body);
+      background: var(--bg-0);
+      color: var(--text-0);
+      overflow: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+
+    #screen-login {
+      min-height: 100vh;
+      display: flex;
+      opacity: 0;
+      animation: screenIn .6s var(--ease-out) .1s forwards;
+    }
+
+    @keyframes screenIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    
+    .login-panel-left {
+      position: relative;
+      width: 52%;
+      background: var(--bg-1);
+      -webkit-font-smoothing: antialiased; 
+
+    }
+
+    .login-panel-left::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .login-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .login-glow-1 {
+      width: 480px; height: 480px;
+      top: -120px; left: -80px;
+      background: radial-gradient(circle, rgba(232,160,74,.15) 0%, transparent 70%);
+      animation: glowDrift 8s ease-in-out infinite alternate;
+    }
+    .login-glow-2 {
+      width: 360px; height: 360px;
+      bottom: -100px; right: -60px;
+      background: radial-gradient(circle, rgba(201,106,74,.12) 0%, transparent 70%);
+      animation: glowDrift 12s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes glowDrift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    .login-panel-left-inner {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 52px;
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .login-logo-icon {
+      font-size: 26px;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px rgba(232,160,74,.5));
+    }
+    .login-logo-text {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--text-0);
+      letter-spacing: -.01em;
+    }
+
+    .login-hero {
+      margin-top: auto;
+      padding-bottom: 8px;
+    }
+    .login-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--border-warm);
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp .5s var(--ease-out) .4s forwards;
+    }
+    .login-tag-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(.8); }
+    }
+
+    .login-headline {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 4vw, 56px);
+      line-height: 1.08;
+      color: var(--text-0);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp .5s var(--ease-out) .55s forwards;
+    }
+    .login-headline em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .login-subtitle {
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--text-1);
+      max-width: 380px;
+      opacity: 0;
+      animation: fadeUp .5s var(--ease-out) .68s forwards;
+    }
+
+
+    .login-social-proof {
+      margin-top: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      animation: fadeUp .5s var(--ease-out) .8s forwards;
+    }
+    .login-avatars {
+      display: flex;
+    }
+    .login-avatar-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--bg-1);
+      background: var(--bg-4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-left: -10px;
+    }
+    .login-avatar-circle:first-child { margin-left: 0; }
+    .login-social-text {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .login-social-text strong {
+      color: var(--text-1);
+      font-weight: 500;
+    }
+
+    .login-features {
+      margin-top: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeUp .5s var(--ease-out) .92s forwards;
+    }
+    .login-feature-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      color: var(--text-2);
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 100px;
+      transition: color var(--t-fast), border-color var(--t-fast);
+    }
+    .login-feature-pill:hover {
+      color: var(--text-1);
+      border-color: var(--border-warm);
+    }
+    .login-feature-pill svg { color: var(--accent); flex-shrink: 0; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    
+    .login-panel-right {
+      width: 48%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-0);
+      padding: 48px 40px;
+    }
+
+    .login-form-card {
+      width: 100%;
+      max-width: 380px;
+      opacity: 0;
+      animation: fadeUp .55s var(--ease-out) .3s forwards;
+    }
+
+    .login-form-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 24px;
+    }
+
+    .login-form-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1.1;
+      color: var(--text-0);
+      margin-bottom: 8px;
+    }
+    .login-form-desc {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+  
+    .login-field {
+      margin-bottom: 14px;
+    }
+    .login-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--text-2);
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+    .login-input-wrap {
+      position: relative;
+    }
+    .login-input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      pointer-events: none;
+      transition: color var(--t-base);
+    }
+    .login-input {
+      width: 100%;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px 14px 13px 42px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--text-0);
+      outline: none;
+      transition:
+        border-color var(--t-base),
+        background var(--t-base),
+        box-shadow var(--t-base);
+    }
+    .login-input::placeholder { color: var(--text-3); }
+    .login-input:focus {
+      border-color: var(--border-warm);
+      background: var(--bg-3);
+      box-shadow: 0 0 0 3px rgba(232,160,74,.12);
+    }
+    .login-input:focus + .login-input-icon-after,
+    .login-input-wrap:focus-within .login-input-icon {
+      color: var(--accent);
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, #f0ad55 100%);
+      border: none;
+      border-radius: 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      cursor: pointer;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition:
+        transform 0.3s var(--ease-spring),
+        box-shadow var(--t-base),
+        background var(--t-base);
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .login-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(232,160,74,0.4);
+      filter: brightness(1.05);
+    }
+    .login-btn:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    .login-btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    
+    .login-btn-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,.25);
+      border-top-color: var(--bg-0);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .login-btn.loading .login-btn-spinner { display: block; }
+    .login-btn.loading .login-btn-text { opacity: 0; position: absolute; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+   
+    .login-error {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #e07060;
+      background: rgba(192,57,43,.1);
+      border: 1px solid rgba(192,57,43,.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-top: 14px;
+      animation: fadeUp .2s var(--ease-out);
+    }
+    .login-error.visible { display: flex; }
+
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--text-3);
+      font-size: 12px;
+    }
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .login-hint {
+      font-size: 12px;
+      color: var(--text-3);
+      text-align: center;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+    .login-hint a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .login-hint a:hover { text-decoration: underline; }
+
+    
+    .login-rule {
+      margin-top: 32px;
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    
+    .login-role-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .login-role-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      background: var(--bg-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      transition:
+        border-color var(--t-base),
+        background var(--t-base),
+        color var(--t-base),
+        box-shadow var(--t-base);
+      user-select: none;
+    }
+    .login-role-tab svg { flex-shrink: 0; }
+    .login-role-tab:hover {
+      border-color: var(--border-warm);
+      color: var(--text-1);
+      background: var(--bg-3);
+    }
+    .login-role-tab.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,160,74,.1);
+    }
+
+   
+    .login-signup-link {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-3);
+    }
+    .login-signup-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity var(--t-fast);
+    }
+    .login-signup-link a:hover { text-decoration: underline; }
+
+    
+    @media (max-width: 860px) {
+      #screen-login { flex-direction: column; overflow-y: auto; }
+      .login-panel-left { width: 100%; min-height: 260px; }
+      .login-panel-right { width: 100%; padding: 40px 24px 60px; }
+      .login-hero { margin-top: 24px; }
+      .login-headline { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+
+<div id="screen-login" class="screen active">
+
+  <div class="login-panel-left">
+    <div class="login-glow login-glow-1"></div>
+    <div class="login-glow login-glow-2"></div>
+
+    <div class="login-panel-left-inner">
+
+
+      <div class="login-logo">
+        <span class="login-logo-icon">⬡</span>
+        <span class="login-logo-text">StudySync</span>
+      </div>
+
+      <div class="login-hero">
+        <div class="login-tag">
+          <span class="login-tag-dot"></span>
+          Estudo colaborativo em tempo real
+        </div>
+
+        <h1 class="login-headline">
+          Estude junto.<br>
+          Avance <em>mais longe.</em>
+        </h1>
+
+        <p class="login-subtitle">
+          Salas de foco compartilhado, chat, chamada de vídeo e
+          acompanhamento do seu progresso — tudo em um só lugar.
+        </p>
+
+        <div class="login-social-proof">
+          <div class="login-avatars">
+            <div class="login-avatar-circle">M</div>
+            <div class="login-avatar-circle">J</div>
+            <div class="login-avatar-circle">A</div>
+            <div class="login-avatar-circle">R</div>
+          </div>
+          <p class="login-social-text">
+            <strong>Alunos estudando agora</strong> em salas abertas
+          </p>
+        </div>
+
+        
+        <div class="login-features">
+          <span class="login-feature-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Timer Pomodoro
+          </span>
+          <span class="login-feature-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Chat em tempo real
+          </span>
+          <span class="login-feature-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            Chamada de vídeo
+          </span>
+          <span class="login-feature-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Estatísticas
+          </span>
+          <span class="login-feature-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Agenda pessoal
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="login-panel-right">
+    <div class="login-form-card">
+
+      <p class="login-form-eyebrow">Acesso à plataforma</p>
+      <h2 class="login-form-title">Bem-vindo de volta.</h2>
+      <p class="login-form-desc">
+        Selecione seu perfil e entre com seu nome de usuário.
+      </p>
+
+      
+      <div class="login-role-tabs" id="login-role-tabs">
+        <button class="login-role-tab active" data-role="aluno" onclick="selectRole(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+          Aluno
+        </button>
+        <button class="login-role-tab" data-role="professor" onclick="selectRole(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+          Professor
+        </button>
+      </div>
+
+      
+      <div class="login-field">
+        <label class="login-label" for="login-username">Seu nome</label>
+        <div class="login-input-wrap">
+          <svg class="login-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <input
+            id="login-username"
+            class="login-input"
+            type="text"
+            placeholder="Ex.: Maria, João, Ana…"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            maxlength="40"
+            onkeydown="if(event.key==='Enter') doLogin()"
+            oninput="clearLoginError()"
+          />
+        </div>
+      </div>
+
+    
+      <button class="login-btn" id="login-submit-btn" onclick="doLogin()">
+        <span class="login-btn-spinner"></span>
+        <span class="login-btn-text">Entrar na plataforma</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+      <div class="login-error" id="login-error">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="login-error-text">Insira um nome para continuar.</span>
+      </div>
+
+      <hr class="login-rule" />
+
+      <p class="login-hint">
+        Ao entrar, você concorda com os <a href="#">Termos de Uso</a> da plataforma.<br>
+        Sem senha necessária — apenas escolha um nome único.
+      </p>
+
+      <p class="login-signup-link">
+        Ainda não tem conta? <a href="signup-screen.html">Criar conta grátis</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+function clearLoginError() {
+  document.getElementById('login-error').classList.remove('visible');
+}
+
+function selectRole(el) {
+  document.querySelectorAll('.login-role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function doLogin() {
+  const input = document.getElementById('login-username');
+  const btn   = document.getElementById('login-submit-btn');
+  const error = document.getElementById('login-error');
+  const errorText = document.getElementById('login-error-text');
+
+  const username = input.value.trim();
+  const role = document.querySelector('.login-role-tab.active')?.dataset.role || 'aluno';
+
+
+  if (!username) {
+    error.classList.add('visible');
+    errorText.textContent = 'Insira um nome para continuar.';
+    input.focus();
+    return;
+  }
+  if (username.length < 2) {
+    error.classList.add('visible');
+    errorText.textContent = 'O nome precisa ter pelo menos 2 caracteres.';
+    input.focus();
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+  clearLoginError();
+
+  try {
+    const res = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, role })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+
+    
+    localStorage.setItem('studysync_user', JSON.stringify(data.user));
+
+    if (typeof App !== 'undefined') {
+      App.currentUser = data.user;
+      App.showRoomsScreen();
+    } else {
+
+      document.getElementById('screen-login').classList.remove('active');
+      const rooms = document.getElementById('screen-rooms');
+      if (rooms) rooms.classList.add('active');
+    }
+
+  } catch (err) {
+    error.classList.add('visible');
+    errorText.textContent = 'Não foi possível conectar ao servidor. Tente novamente.';
+    console.error('Login error:', err);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => document.getElementById('login-username')?.focus(), 700);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primeiros Socorros</title>
+<style>
+:root {
+  --red: #c0392b; --red-light: #fdecea; --red-mid: #e74c3c;
+  --green: #27ae60; --green-light: #e9f7ef;
+  --blue: #2980b9; --blue-light: #eaf4fb;
+  --amber: #e67e22; --amber-light: #fef5e7;
+  --gray: #f5f5f5; --gray2: #e8e8e8; --gray3: #bbb;
+  --text: #111; --text2: #555; --text3: #999;
+  --radius: 12px; --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f0f0f0; min-height: 100vh; }
+
+
+.nav { background: #fff; border-bottom: 1px solid var(--gray2); padding: 0 1.5rem; display: flex; align-items: center; gap: 0; position: sticky; top: 0; z-index: 100; }
+.nav-logo { font-size: 15px; font-weight: 700; color: var(--red); padding: 1rem 1.5rem 1rem 0; border-right: 1px solid var(--gray2); margin-right: 1.5rem; letter-spacing: -0.02em; }
+.nav-tabs { display: flex; gap: 0; }
+.nav-tab { padding: 1rem 1.25rem; font-size: 13px; font-weight: 500; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+
+.page { display: none; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
+.page.active { display: block; }
+
+
+.sim-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+.badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.04em; }
+.badge-red { background: var(--red-light); color: var(--red); }
+.badge-blue { background: var(--blue-light); color: var(--blue); }
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-amber { background: var(--amber-light); color: var(--amber); }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text); }
+.score-bar { display: flex; gap: 10px; margin-bottom: 1.25rem; }
+.score-card { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius-sm); padding: 10px 14px; flex: 1; }
+.score-label { font-size: 11px; color: var(--text3); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+.score-val { font-size: 22px; font-weight: 700; color: var(--text); }
+.progress-bar { display: flex; gap: 4px; margin-bottom: 1.25rem; }
+.pip { height: 5px; flex: 1; border-radius: 3px; background: var(--gray2); transition: background 0.3s; }
+.pip.done { background: var(--green); }
+.pip.active { background: var(--text); }
+.scene-card { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
+.scene-tag { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 700; }
+.scene-text { font-size: 15px; color: var(--text); line-height: 1.7; }
+.choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+.choice-btn { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius-sm); padding: 12px 16px; text-align: left; font-size: 14px; color: var(--text); cursor: pointer; transition: all 0.15s; line-height: 1.5; }
+.choice-btn:hover:not(:disabled) { background: var(--gray); border-color: var(--gray3); }
+.choice-btn.correct { background: var(--green-light); border-color: var(--green); color: #1a6b3c; font-weight: 600; }
+.choice-btn.wrong { background: var(--red-light); border-color: var(--red-mid); color: #7b241c; }
+.choice-btn.missed { border-style: dashed; border-color: var(--green); color: var(--text3); }
+.feedback { border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 1rem; font-size: 14px; line-height: 1.65; display: none; }
+.feedback.show { display: block; }
+.feedback.good { background: var(--green-light); color: #1a6b3c; border: 1px solid #a9dfbf; }
+.feedback.bad { background: var(--red-light); color: #7b241c; border: 1px solid #f5b7b1; }
+.action-btn { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius-sm); padding: 10px 20px; font-size: 14px; color: var(--text); cursor: pointer; display: none; transition: background 0.15s; font-weight: 500; }
+.action-btn.show { display: inline-block; }
+.action-btn:hover { background: var(--gray); }
+.action-btn.primary { background: var(--text); color: #fff; border-color: var(--text); }
+.action-btn.primary:hover { background: #333; }
+.end-screen { display: none; text-align: center; padding: 3rem 1rem; }
+.end-screen.show { display: block; }
+.end-emoji { font-size: 56px; margin-bottom: 16px; }
+.end-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.end-sub { font-size: 15px; color: var(--text2); line-height: 1.7; margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+.trainer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+.protocol-card { background: #fff; border: 2px solid var(--gray2); border-radius: var(--radius); padding: 1rem 1.25rem; cursor: pointer; transition: all 0.2s; }
+.protocol-card:hover { border-color: var(--red-mid); transform: translateY(-1px); }
+.protocol-card.selected { border-color: var(--red); background: var(--red-light); }
+.protocol-icon { font-size: 28px; margin-bottom: 8px; }
+.protocol-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.protocol-desc { font-size: 12px; color: var(--text3); }
+.trainer-area { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius); padding: 1.5rem; }
+.step-display { text-align: center; margin-bottom: 1.5rem; }
+.step-number { font-size: 13px; color: var(--text3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+.step-icon-big { font-size: 64px; margin-bottom: 12px; line-height: 1; }
+.step-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.step-detail { font-size: 14px; color: var(--text2); line-height: 1.65; max-width: 420px; margin: 0 auto; }
+.metronome { display: flex; flex-direction: column; align-items: center; margin: 1.5rem 0; }
+.metro-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--gray); border: 3px solid var(--gray2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text2); transition: background 0.1s, border-color 0.1s; margin-bottom: 8px; }
+.metro-circle.beat { background: var(--red-light); border-color: var(--red); color: var(--red); }
+.metro-bpm { font-size: 12px; color: var(--text3); }
+.step-nav { display: flex; gap: 10px; justify-content: center; align-items: center; }
+.step-dots { display: flex; gap: 6px; }
+.step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray2); transition: background 0.2s; }
+.step-dot.active { background: var(--red); }
+.step-dot.done { background: var(--green); }
+.trainer-placeholder { text-align: center; padding: 3rem 1rem; color: var(--text3); }
+.trainer-placeholder-icon { font-size: 40px; margin-bottom: 12px; }
+
+.scenario-select { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+.scenario-opt { background: #fff; border: 2px solid var(--gray2); border-radius: var(--radius); padding: 1rem; cursor: pointer; transition: all 0.2s; }
+.scenario-opt:hover { border-color: var(--red-mid); }
+.scenario-opt.active { border-color: var(--red); }
+.scenario-opt-icon { font-size: 24px; margin-bottom: 6px; }
+.scenario-opt-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.scenario-opt-tag { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.live-scene { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius); overflow: hidden; }
+.live-top { background: var(--red); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+.live-top-left { font-size: 13px; font-weight: 700; }
+.live-timer { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.live-timer.urgent { color: #ffd5d5; }
+.victim-area { padding: 1.25rem; border-bottom: 1px solid var(--gray2); }
+.victim-status { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+.vital-sign { background: var(--gray); border-radius: var(--radius-sm); padding: 8px; text-align: center; }
+.vital-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+.vital-val { font-size: 16px; font-weight: 700; }
+.vital-val.danger { color: var(--red); }
+.vital-val.ok { color: var(--green); }
+.vital-val.warn { color: var(--amber); }
+.victim-desc { font-size: 14px; color: var(--text2); line-height: 1.65; }
+.actions-area { padding: 1.25rem; }
+.actions-title { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; font-weight: 700; }
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.live-action { background: var(--gray); border: 1px solid var(--gray2); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; cursor: pointer; transition: all 0.15s; text-align: left; line-height: 1.4; }
+.live-action:hover:not(:disabled) { background: var(--gray2); }
+.live-action:disabled { opacity: 0.4; cursor: default; }
+.live-action.good-action { background: var(--green-light); border-color: var(--green); color: #1a6b3c; }
+.live-action.bad-action { background: var(--red-light); border-color: var(--red-mid); color: #7b241c; }
+.event-log { background: var(--gray); border-radius: var(--radius-sm); padding: 10px 12px; max-height: 140px; overflow-y: auto; }
+.log-entry { font-size: 12px; color: var(--text2); padding: 3px 0; border-bottom: 1px solid var(--gray2); line-height: 1.5; }
+.log-entry:last-child { border-bottom: none; }
+.log-entry.good { color: var(--green); }
+.log-entry.bad { color: var(--red); }
+.log-time { color: var(--text3); font-weight: 600; margin-right: 6px; }
+.scene-placeholder { text-align: center; padding: 3rem 1rem; color: var(--text3); }
+
+.panel-search { width: 100%; padding: 10px 14px; border: 1px solid var(--gray2); border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 1.25rem; outline: none; transition: border-color 0.15s; }
+.panel-search:focus { border-color: var(--red); }
+.panel-categories { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.cat-btn { padding: 6px 14px; border: 1px solid var(--gray2); border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; background: #fff; color: var(--text2); }
+.cat-btn:hover { border-color: var(--red); color: var(--red); }
+.cat-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+.protocols-list { display: flex; flex-direction: column; gap: 10px; }
+.proto-card { background: #fff; border: 1px solid var(--gray2); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+.proto-card:hover { border-color: var(--gray3); }
+.proto-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+.proto-icon { font-size: 24px; width: 40px; text-align: center; }
+.proto-info { flex: 1; }
+.proto-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.proto-sub { font-size: 12px; color: var(--text3); }
+.proto-severity { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+.sev-critical { background: var(--red-light); color: var(--red); }
+.sev-high { background: var(--amber-light); color: var(--amber); }
+.sev-medium { background: var(--blue-light); color: var(--blue); }
+.proto-chevron { color: var(--text3); font-size: 12px; transition: transform 0.2s; }
+.proto-chevron.open { transform: rotate(90deg); }
+.proto-body { display: none; border-top: 1px solid var(--gray2); padding: 14px 16px; }
+.proto-body.open { display: block; }
+.proto-steps { list-style: none; }
+.proto-step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.proto-step:last-child { margin-bottom: 0; }
+.step-num { width: 24px; height: 24px; background: var(--red); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.step-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.step-text strong { color: var(--text); font-weight: 700; }
+.proto-warning { background: var(--amber-light); border: 1px solid #f0c27f; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; color: #7d4a04; margin-top: 12px; line-height: 1.5; }
+.proto-warning::before { content: "⚠️ "; }
+.empty-state { text-align: center; padding: 2rem; color: var(--text3); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">🚑 PS</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('sim')">1 Simulador</div>
+    <div class="nav-tab" onclick="showPage('trainer')">2 Treinador</div>
+    <div class="nav-tab" onclick="showPage('scenario')">3 Cenário Real</div>
+    <div class="nav-tab" onclick="showPage('panel')">4 Referência</div>
+  </div>
+</nav>
+
+
+<div class="page active" id="page-sim">
+  <div class="sim-header">
+    <div class="badge badge-red">EMERGÊNCIA</div>
+    <div class="page-title">Simulador de Decisões</div>
+  </div>
+  <div class="score-bar">
+    <div class="score-card"><div class="score-label">Acertos</div><div class="score-val" id="sim-correct">0</div></div>
+    <div class="score-card"><div class="score-label">Erros</div><div class="score-val" id="sim-wrong">0</div></div>
+    <div class="score-card"><div class="score-label">Cenário</div><div class="score-val" id="sim-num">1/7</div></div>
+  </div>
+  <div class="progress-bar" id="sim-progress"></div>
+  <div id="sim-game">
+    <div class="scene-card">
+      <div class="scene-tag" id="sim-tag"></div>
+      <div class="scene-text" id="sim-text"></div>
+    </div>
+    <div class="choices" id="sim-choices"></div>
+    <div class="feedback" id="sim-feedback"></div>
+    <button class="action-btn" id="sim-next">Próximo cenário →</button>
+  </div>
+  <div class="end-screen" id="sim-end">
+    <div class="end-emoji" id="sim-end-emoji"></div>
+    <div class="end-title" id="sim-end-title"></div>
+    <div class="end-sub" id="sim-end-sub"></div>
+    <button class="action-btn primary show" onclick="simRestart()">Jogar novamente</button>
+  </div>
+</div>
+
+
+<div class="page" id="page-trainer">
+  <div class="sim-header">
+    <div class="badge badge-blue">TREINADOR</div>
+    <div class="page-title">Passo a Passo com Metrônomo</div>
+  </div>
+  <div class="trainer-grid" id="protocol-grid"></div>
+  <div class="trainer-area" id="trainer-area">
+    <div class="trainer-placeholder">
+      <div class="trainer-placeholder-icon">☝️</div>
+      <div>Selecione um protocolo acima para começar</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="page" id="page-scenario">
+  <div class="sim-header">
+    <div class="badge badge-red">TEMPO REAL</div>
+    <div class="page-title">Cenário: Você Age Agora</div>
+  </div>
+  <div class="scenario-select" id="scenario-select"></div>
+  <div id="live-area">
+    <div class="scene-placeholder">
+      <div style="font-size:40px;margin-bottom:12px">🎯</div>
+      <div style="font-size:14px">Escolha um cenário acima para iniciar a simulação em tempo real</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="page" id="page-panel">
+  <div class="sim-header">
+    <div class="badge badge-green">REFERÊNCIA</div>
+    <div class="page-title">Painel de Protocolos</div>
+  </div>
+  <input class="panel-search" id="panel-search" placeholder="Buscar protocolo..." oninput="filterPanel()">
+  <div class="panel-categories" id="panel-cats"></div>
+  <div class="protocols-list" id="protocols-list"></div>
+</div>
+
+<script>
+
+const SIM_SCENARIOS = [
+  { tag:"Parada cardíaca", text:"Você está num shopping e vê alguém desmaiar. A pessoa não responde e não respira normalmente. O que você faz primeiro?",
+    choices:[
+      {text:"Ligar 192 e iniciar RCP imediatamente", correct:true},
+      {text:"Esperar alguém mais qualificado chegar", correct:false},
+      {text:"Colocar em posição lateral de segurança", correct:false},
+      {text:"Dar água para ela recuperar a consciência", correct:false}
+    ],
+    ok:"✅ Correto! Ligue 192, peça um DEA e inicie RCP: 30 compressões + 2 ventilações. Profundidade 5–6 cm, ritmo 100–120/min.",
+    err:"❌ Em parada cardíaca cada segundo mata neurônios. Chame 192 e inicie RCP imediatamente. Posição lateral é só para inconscientes que respiram."
+  },
+  { tag:"Engasgamento total", text:"Um colega fica vermelho, segura o pescoço e não consegue falar nem tossir. O que você faz?",
+    choices:[
+      {text:"Pedir que tente continuar tossindo", correct:false},
+      {text:"Aplicar a manobra de Heimlich (5 compressões abdominais)", correct:true},
+      {text:"Dar tapas fortes nas costas", correct:false},
+      {text:"Ligar SAMU e esperar", correct:false}
+    ],
+    ok:"✅ Correto! Obstrução total = Heimlich imediato. Fique atrás, punho 2 dedos acima do umbigo, 5 compressões rápidas para dentro e para cima.",
+    err:"❌ Sem tosse efetiva = obstrução total = Heimlich imediatamente. Tapas são para obstrução parcial. SAMU demora — aja agora."
+  },
+  { tag:"Queimadura", text:"Uma criança derruba água fervendo no antebraço. Pele vermelha com bolhas. O que fazer primeiro?",
+    choices:[
+      {text:"Estoura as bolhas e aplica pasta de dente", correct:false},
+      {text:"Lava com água fria corrente por 10–20 minutos", correct:true},
+      {text:"Coloca gelo para aliviar a dor", correct:false},
+      {text:"Aplica manteiga ou óleo para proteger", correct:false}
+    ],
+    ok:"✅ Correto! Água fria corrente (não gelada) por 10–20 min. Nunca: gelo, pasta, manteiga, estouro de bolhas. Depois cubra com curativo limpo.",
+    err:"❌ Água fria corrente é o único correto. Gelo causa mais lesão. Pasta/manteiga retêm calor. Bolhas protegem — não estoure."
+  },
+  { tag:"Desmaio", text:"Uma jovem desmaia na fila do banco mas respira normalmente. Como agir?",
+    choices:[
+      {text:"Iniciar RCP pois está inconsciente", correct:false},
+      {text:"Sentar ela e dar água imediatamente", correct:false},
+      {text:"Posição lateral de segurança e elevar as pernas", correct:true},
+      {text:"Jogar água fria no rosto", correct:false}
+    ],
+    ok:"✅ Correto! Inconsciente mas respirando = posição lateral. Eleve as pernas ~30 cm para melhorar fluxo ao cérebro. Não dê nada pela boca.",
+    err:"❌ RCP é para parada cardíaca. Posição lateral de segurança mantém vias aéreas abertas. Não dê líquidos a pessoas inconscientes."
+  },
+  { tag:"AVC", text:"Seu familiar repentinamente não move o braço, a boca está torta e a fala sai estranha. O que fazer?",
+    choices:[
+      {text:"Dar aspirina e esperar passar", correct:false},
+      {text:"Ligar 192 imediatamente e anotar o horário do início", correct:true},
+      {text:"Deixar descansar até melhorar", correct:false},
+      {text:"Levar de carro ao hospital", correct:false}
+    ],
+    ok:"✅ Correto! AVC = 1,9 milhão de neurônios morrem por minuto. Ligue 192 (o SAMU chega preparado) e anote o horário — crucial para o tratamento.",
+    err:"❌ Aspirina pode piorar AVC hemorrágico. SAMU chega preparado. 'Descansar' é perda de tempo fatal. Anote o horário do início — é essencial para o tratamento."
+  },
+  { tag:"Hemorragia grave", text:"Seu amigo tem um corte profundo na coxa com sangramento intenso após queda. O que fazer?",
+    choices:[
+      {text:"Lavar e aguardar o sangramento parar", correct:false},
+      {text:"Fazer torniquete improvisado na raiz do membro", correct:false},
+      {text:"Pressionar com pano limpo e firme sem soltar e chamar socorro", correct:true},
+      {text:"Elevar o membro e não tocar para não contaminar", correct:false}
+    ],
+    ok:"✅ Correto! Pressão direta e contínua por 10+ minutos. Use o pano mais limpo disponível. Chame 192. Torniquete improvisado pode causar amputação.",
+    err:"❌ Pressão direta é o padrão-ouro. Torniquete improvisado é arriscado. Elevar sem pressionar não controla o sangramento. Hemorragia grave mata em minutos."
+  },
+  { tag:"Convulsão", text:"Uma pessoa cai e começa a ter convulsões com espasmos pelo corpo. O que você NÃO deve fazer?",
+    choices:[
+      {text:"Segurá-la com força para parar os espasmos", correct:true},
+      {text:"Afastar objetos ao redor para evitar lesões", correct:false},
+      {text:"Colocar algo macio sob a cabeça", correct:false},
+      {text:"Ficar ao lado e cronometrar a duração", correct:false}
+    ],
+    ok:"✅ Correto! NUNCA segure alguém em convulsão — pode causar fraturas. Afaste objetos, proteja a cabeça, cronometre. Se durar mais de 5 min, chame 192.",
+    err:"❌ Segurar é perigoso e pode causar fraturas. A convulsão precisa seguir seu curso. Proteja a cabeça, afaste objetos e cronometre."
+  }
+];
+
+const TRAINER_PROTOCOLS = [
+  { id:'rcp', icon:'🫀', name:'RCP Adulto', desc:'Reanimação cardiopulmonar', bpm:110,
+    steps:[
+      {icon:'📞', title:'Chamar ajuda', detail:'Ligue 192 ou peça alguém para ligar. Peça o DEA mais próximo. Não deixe a vítima sozinha.'},
+      {icon:'🔍', title:'Verificar resposta', detail:'Sacuda os ombros firmemente e grite "Você está bem?". Verifique se há respiração normal (máx. 10 segundos).'},
+      {icon:'✋', title:'Posição das mãos', detail:'Entrelace os dedos. Posicione o calcanhar de uma mão no centro do peito (metade inferior do esterno). Braços estendidos e retos.'},
+      {icon:'💪', title:'Comprimir 30x', detail:'Comprima 5–6 cm de profundidade em ritmo de 100–120/min. Use o metrônomo abaixo. Deixe o tórax voltar completamente.'},
+      {icon:'💨', title:'2 ventilações', detail:'Incline a cabeça, eleve o queixo. Tampe o nariz e sopre por 1 segundo. O peito deve subir. Repita uma vez. Se não tiver EPI, só compressões.'},
+      {icon:'🔄', title:'Repetir ciclos', detail:'Continue 30:2 até o DEA chegar, a vítima responder ou o socorro assumir. Troque com outra pessoa a cada 2 minutos se possível.'}
+    ]
+  },
+  { id:'heimlich', icon:'🫁', name:'Heimlich', desc:'Engasgamento em adulto', bpm:0,
+    steps:[
+      {icon:'👀', title:'Identificar', detail:'Pergunte "Você está engasgado?". Se a pessoa não consegue falar, tossir ou respirar, aja imediatamente.'},
+      {icon:'🔔', title:'Pedir ajuda', detail:'Grite por ajuda e peça alguém para ligar 192 enquanto você age.'},
+      {icon:'🤝', title:'Posicionar', detail:'Fique atrás da pessoa. Envolva a cintura com os braços. Incline levemente a vítima para frente.'},
+      {icon:'✊', title:'Posição do punho', detail:'Faça um punho e posicione o lado do polegar 2 dedos acima do umbigo, abaixo do esterno.'},
+      {icon:'💥', title:'5 compressões', detail:'Cubra o punho com a outra mão. Faça 5 compressões rápidas para dentro e para CIMA em movimento de J.'},
+      {icon:'🔄', title:'Repetir', detail:'Alterne 5 tapas nas costas + 5 compressões abdominais até o objeto sair ou a vítima perder a consciência (inicie RCP se isso ocorrer).'}
+    ]
+  },
+  { id:'avc', icon:'🧠', name:'Protocolo AVC', desc:'Identificar e agir rápido', bpm:0,
+    steps:[
+      {icon:'😶', title:'Teste F — Face', detail:'Peça para sorrir. Há assimetria? Lado da boca caído? Isso indica possível AVC.'},
+      {icon:'💪', title:'Teste A — Braços', detail:'Peça para levantar ambos os braços. Um cai ou fica fraco? Sinal de alerta.'},
+      {icon:'🗣️', title:'Teste L — Linguagem', detail:'Peça para repetir uma frase simples. Fala arrastada, confusa ou impossível? Sinal crítico.'},
+      {icon:'⏰', title:'Teste T — Tempo', detail:'Anote EXATAMENTE o horário do início dos sintomas. Isso determina o tipo de tratamento possível.'},
+      {icon:'📞', title:'Ligar 192', detail:'Ligue imediatamente. Diga que suspeita de AVC. O SAMU ativa o protocolo antes de chegar. NÃO dê remédios.'},
+      {icon:'🛋️', title:'Aguardar', detail:'Deixe confortável (não deite em cima do braço fraco). Não dê nada para beber ou comer. Monitore a respiração.'}
+    ]
+  },
+  { id:'queimadura', icon:'🔥', name:'Queimadura', desc:'Primeiros cuidados', bpm:0,
+    steps:[
+      {icon:'🚨', title:'Afastar do perigo', detail:'Remova a vítima da fonte de calor com segurança. Proteja-se antes de agir.'},
+      {icon:'✂️', title:'Retirar roupas', detail:'Remova roupas e acessórios DA ÁREA QUEIMADA (exceto se estiverem colados à pele — não puxe!).'},
+      {icon:'💧', title:'Resfriar 10–20 min', detail:'Água fria corrente (15–25°C) por no mínimo 10 minutos. NÃO use gelo, pasta de dente, manteiga ou qualquer substância.'},
+      {icon:'🩹', title:'Cobrir', detail:'Cubra com curativo limpo e não aderente. Filme plástico (sem apertar) é uma boa opção temporária.'},
+      {icon:'🌡️', title:'Aquecer a vítima', detail:'Resfriar só a queimadura. O resto do corpo deve ser mantido aquecido para evitar hipotermia.'},
+      {icon:'🏥', title:'Avaliar gravidade', detail:'Queimaduras na face, mãos, genitais, articulações, ou >10% do corpo = emergência hospitalar imediata.'}
+    ]
+  }
+];
+
+const LIVE_SCENARIOS = [
+  { id:'cardiac', icon:'🫀', name:'Parada Cardíaca', tag:'Crítico — agir em segundos',
+    vitals:{consciencia:{label:'Consciência',val:'Ausente',cls:'danger'}, respiracao:{label:'Respiração',val:'Ausente',cls:'danger'}, pulso:{label:'Pulso',val:'Ausente',cls:'danger'}},
+    desc:'Adulto de ~50 anos no chão. Não responde ao chamado. Sem respiração normal visível. Lábios levemente azulados.',
+    actions:[
+      {text:'📞 Ligar 192 e pedir DEA', good:true, effect:'SAMU acionado. DEA sendo buscado.'},
+      {text:'🫀 Iniciar RCP (30:2)', good:true, effect:'RCP iniciada corretamente!'},
+      {text:'💧 Dar água', good:false, effect:'ERRADO! Nunca dê água a inconsciente.'},
+      {text:'🛋️ Posição lateral', good:false, effect:'ERRADO! Posição lateral é para quem respira.'},
+      {text:'⚡ Usar o DEA', good:true, effect:'DEA aplicado — choque recomendado!'},
+      {text:'👥 Pedir ajuda ao redor', good:true, effect:'Outras pessoas ajudando a revezar.'}
+    ]
+  },
+  { id:'stroke', icon:'🧠', name:'Suspeita de AVC', tag:'Urgente — cada minuto importa',
+    vitals:{consciencia:{label:'Consciência',val:'Confusa',cls:'warn'}, respiracao:{label:'Fala',val:'Alterada',cls:'warn'}, pulso:{label:'Mov. Braço',val:'Reduzido',cls:'danger'}},
+    desc:'Homem de ~60 anos com boca torta, braço direito caído, tentando falar mas palavras saem embaralhadas. Iniciou há ~5 min.',
+    actions:[
+      {text:'📞 Ligar 192 imediatamente', good:true, effect:'SAMU acionado com protocolo AVC.'},
+      {text:'⏰ Anotar horário do início', good:true, effect:'Horário registrado — crucial para o médico.'},
+      {text:'💊 Dar aspirina', good:false, effect:'ERRADO! Aspirina pode piorar AVC hemorrágico.'},
+      {text:'🛋️ Deixar confortável', good:true, effect:'Vítima posicionada com segurança.'},
+      {text:'🚗 Levar de carro', good:false, effect:'ERRADO! SAMU chega preparado. Carro atrasa.'},
+      {text:'🧪 Fazer teste FAST', good:true, effect:'Face, Braço, Linguagem, Tempo — confirmado.'}
+    ]
+  },
+  { id:'choke', icon:'🫁', name:'Engasgamento Total', tag:'Imediato — sem tempo a perder',
+    vitals:{consciencia:{label:'Consciência',val:'Presente',cls:'ok'}, respiracao:{label:'Respiração',val:'Obstruída',cls:'danger'}, pulso:{label:'Coloração',val:'Roxa',cls:'danger'}},
+    desc:'Criança de ~8 anos engasgada com pedaço de carne. Não consegue tossir, falar ou respirar. Segurando o pescoço com as mãos.',
+    actions:[
+      {text:'✊ Heimlich (compressões abd.)', good:true, effect:'Compressões aplicadas corretamente!'},
+      {text:'👋 5 tapas nas costas', good:true, effect:'Tapas aplicadas — alternando com Heimlich.'},
+      {text:'😮 Tentar retirar com o dedo', good:false, effect:'ERRADO! Pode empurrar mais fundo.'},
+      {text:'📞 Pedir alguém ligar 192', good:true, effect:'SAMU acionado enquanto você age.'},
+      {text:'💧 Dar água para descer', good:false, effect:'ERRADO! Água não resolve obstrução sólida.'},
+      {text:'🔄 Continuar até sair ou desmaiar', good:true, effect:'Persistindo. Se desmaiar, iniciar RCP.'}
+    ]
+  },
+  { id:'bleed', icon:'🩸', name:'Hemorragia Grave', tag:'Urgente — sangramento ativo',
+    vitals:{consciencia:{label:'Consciência',val:'Presente',cls:'ok'}, respiracao:{label:'Palidez',val:'Crescente',cls:'warn'}, pulso:{label:'Sangramento',val:'Intenso',cls:'danger'}},
+    desc:'Homem com corte profundo na coxa por vidro. Sangramento intenso e contínuo. Vítima começa a ficar pálida e agitada.',
+    actions:[
+      {text:'🤲 Pressão direta e firme', good:true, effect:'Pressão aplicada. Mantenha sem soltar!'},
+      {text:'📞 Ligar 192', good:true, effect:'SAMU acionado.'},
+      {text:'🔴 Torniquete improvisado', good:false, effect:'RISCO! Torniquete improvisado pode causar amputação.'},
+      {text:'💧 Lavar o ferimento', good:false, effect:'ERRADO! Não lave — isso remove os coágulos.'},
+      {text:'🛋️ Deitar e elevar o membro', good:true, effect:'Correto — deite e eleve a perna acima do coração.'},
+      {text:'🔄 Manter pressão 10+ min', good:true, effect:'Pressão mantida. Coágulo se formando.'}
+    ]
+  }
+];
+
+const PANEL_PROTOCOLS = [
+  { cat:'Cardíaco', severity:'critical', icon:'🫀', title:'Parada Cardíaca / RCP', sub:'Adulto sem pulso e sem respiração',
+    steps:['Verifique segurança do local e chame ajuda', 'Confirme: sem resposta, sem respiração normal', 'Ligue 192 e peça o DEA', 'Inicie RCP: 30 compressões + 2 ventilações', 'Comprima 5–6 cm, ritmo 100–120/min', 'Use o DEA assim que disponível e siga as instruções', 'Continue até o socorro chegar ou vítima responder'],
+    warn:'Não interrompa as compressões por mais de 10 segundos. Reveze a cada 2 min para não cansar.'
+  },
+  { cat:'Respiratório', severity:'critical', icon:'🫁', title:'Engasgamento (Obstrução Total)', sub:'Adulto consciente sem conseguir tossir',
+    steps:['Confirme obstrução total: não fala, não tosse, não respira', 'Fique atrás da vítima e incline-a levemente para frente', 'Faça 5 tapas firmes entre as escápulas com a palma', 'Faça 5 compressões abdominais (manobra de Heimlich)', 'Alterne tapas e compressões até o objeto sair', 'Se a vítima perder a consciência, inicie RCP e cheque a boca antes de ventilar'],
+    warn:'Nunca tente retirar o objeto com o dedo às cegas. Em grávidas e obesos, faça compressões no tórax (não no abdome).'
+  },
+  { cat:'Neurológico', severity:'critical', icon:'🧠', title:'AVC (Acidente Vascular Cerebral)', sub:'FAST: face, braços, linguagem, tempo',
+    steps:['F — Face: sorria. Há assimetria?', 'A — Braços: levante ambos. Um cai?', 'S — Fala (Speech): repita uma frase. Está embaralhada?', 'T — Tempo: anote o horário EXATO do início dos sintomas', 'Ligue 192 imediatamente', 'Não dê aspirina, alimentos ou líquidos', 'Mantenha a vítima quieta e confortável até o socorro'],
+    warn:'O janela terapêutica é de 4,5h para trombólise. Cada minuto perdido = 1,9 milhão de neurônios. NÃO leve de carro.'
+  },
+  { cat:'Trauma', severity:'high', icon:'🩸', title:'Hemorragia Grave', sub:'Sangramento externo intenso',
+    steps:['Use luvas ou barreira (saco plástico) se disponível', 'Aplique pressão direta e firme com pano limpo', 'Mantenha a pressão contínua por pelo menos 10 minutos — não solte', 'Se o pano encharcar, adicione mais um por cima (não retire)', 'Eleve o membro acima do nível do coração se possível', 'Ligue 192', 'Monitore sinais de choque: palidez, frio, confusão'],
+    warn:'Torniquetes improvisados podem causar danos permanentes. Use apenas se treinado ou em sangramento com risco de vida imediato e iminente.'
+  },
+  { cat:'Trauma', severity:'high', icon:'🔥', title:'Queimadura', sub:'Exposição ao calor, fogo ou líquido quente',
+    steps:['Afaste a vítima da fonte de calor', 'Remova roupas e acessórios da área (exceto se colados)', 'Resfrie com água fria corrente por 10–20 minutos', 'Não use gelo, pasta de dente, manteiga ou óleo', 'Cubra com curativo limpo e não aderente', 'Não estoure as bolhas', 'Ligue 192 se: >10% do corpo, face, mãos, genitais, articulações ou inalação de fumaça'],
+    warn:'Resfrie APENAS a queimadura. O restante do corpo deve ser mantido aquecido para evitar hipotermia, especialmente em crianças.'
+  },
+  { cat:'Neurológico', severity:'high', icon:'⚡', title:'Convulsão', sub:'Espasmos involuntários generalizados',
+    steps:['Não segure a pessoa — pode causar fratura', 'Afaste objetos perigosos ao redor', 'Coloque algo macio sob a cabeça', 'Vire suavemente de lado (posição lateral) se possível', 'Cronometre a duração', 'Aguarde — a convulsão passa sozinha em 1–3 min', 'Chame 192 se: durar >5 min, a pessoa não acordar, houver lesão, ou for a primeira convulsão da vida'],
+    warn:'NUNCA coloque nada na boca. A pessoa não vai engolir a língua — é um mito perigoso.'
+  },
+  { cat:'Cardíaco', severity:'medium', icon:'😵', title:'Desmaio / Síncope', sub:'Perda de consciência breve',
+    steps:['Verifique se respira normalmente', 'Coloque em posição lateral de segurança', 'Eleve as pernas ~30 cm acima do coração', 'Afrouxe roupas apertadas', 'Não dê água ou alimentos pela boca', 'Monitore a respiração continuamente', 'Chame 192 se não acordar em 1 min ou houver trauma'],
+    warn:'Se a pessoa não respira, NÃO é desmaio — é parada cardíaca. Inicie RCP imediatamente.'
+  },
+  { cat:'Respiratório', severity:'medium', icon:'🐝', title:'Reação Alérgica Grave', sub:'Anafilaxia com dificuldade respiratória',
+    steps:['Identifique o alérgeno e afaste a vítima', 'Ligue 192 imediatamente', 'Pergunte se tem EpiPen (adrenalina autoinjetável) — aplique na coxa', 'Deite a vítima com as pernas elevadas (ou sente se houver falta de ar)', 'Monitore respiração e consciência', 'Se parar de respirar, inicie RCP', 'Informe ao SAMU o alérgeno suspeito'],
+    warn:'Não dê anti-histamínico oral em anafilaxia grave — não é suficiente. A adrenalina é o único tratamento efetivo.'
+  }
+];
+
+
+let simCurrent = 0, simCorrect = 0, simWrong = 0, simAnswered = false;
+
+function simBuildProgress() {
+  const el = document.getElementById('sim-progress');
+  el.innerHTML = SIM_SCENARIOS.map((_, i) =>
+    `<div class="pip${i < simCurrent ? ' done' : i === simCurrent ? ' active' : ''}"></div>`
+  ).join('');
+}
+
+function simLoad() {
+  simAnswered = false;
+  const s = SIM_SCENARIOS[simCurrent];
+  document.getElementById('sim-tag').textContent = s.tag;
+  document.getElementById('sim-text').textContent = s.text;
+  document.getElementById('sim-num').textContent = `${simCurrent+1}/${SIM_SCENARIOS.length}`;
+  document.getElementById('sim-feedback').className = 'feedback';
+  document.getElementById('sim-next').className = 'action-btn';
+
+  const choicesEl = document.getElementById('sim-choices');
+  const shuffled = [...s.choices].sort(() => Math.random() - 0.5);
+  choicesEl.innerHTML = shuffled.map((c, i) =>
+    `<button class="choice-btn" onclick="simChoose(${i})">${c.text}</button>`
+  ).join('');
+  choicesEl._shuffled = shuffled;
+
+  simBuildProgress();
+  document.getElementById('sim-correct').textContent = simCorrect;
+  document.getElementById('sim-wrong').textContent = simWrong;
+}
+
+function simChoose(idx) {
+  if (simAnswered) return;
+  simAnswered = true;
+  const s = SIM_SCENARIOS[simCurrent];
+  const btns = document.querySelectorAll('#sim-choices .choice-btn');
+  const shuffled = document.getElementById('sim-choices')._shuffled;
+  const choice = shuffled[idx];
+  const fb = document.getElementById('sim-feedback');
+
+  if (choice.correct) {
+    btns[idx].className = 'choice-btn correct';
+    fb.className = 'feedback good show';
+    fb.textContent = s.ok;
+    simCorrect++;
+  } else {
+    btns[idx].className = 'choice-btn wrong';
+    fb.className = 'feedback bad show';
+    fb.textContent = s.err;
+    simWrong++;
+    shuffled.forEach((c, i) => { if (c.correct) btns[i].className = 'choice-btn missed'; });
+  }
+  btns.forEach(b => b.disabled = true);
+  document.getElementById('sim-correct').textContent = simCorrect;
+  document.getElementById('sim-wrong').textContent = simWrong;
+  document.getElementById('sim-next').className = 'action-btn show';
+}
+
+document.getElementById('sim-next').onclick = () => {
+  simCurrent++;
+  if (simCurrent >= SIM_SCENARIOS.length) simEnd();
+  else simLoad();
+};
+
+function simEnd() {
+  document.getElementById('sim-game').style.display = 'none';
+  document.getElementById('sim-end').className = 'end-screen show';
+  const pct = Math.round((simCorrect / SIM_SCENARIOS.length) * 100);
+  const e = document.getElementById('sim-end-emoji');
+  const t = document.getElementById('sim-end-title');
+  const s = document.getElementById('sim-end-sub');
+  if (pct >= 85) { e.textContent='🏥'; t.textContent='Excelente! Você salvaria vidas.'; }
+  else if (pct >= 57) { e.textContent='🩺'; t.textContent='Bom! Ainda há espaço para crescer.'; }
+  else { e.textContent='📚'; t.textContent='Estude mais — cada detalhe importa.'; }
+  s.textContent = `Você acertou ${simCorrect} de ${SIM_SCENARIOS.length} cenários (${pct}%). Revise os protocolos no módulo de Referência.`;
+}
+
+function simRestart() {
+  simCurrent = 0; simCorrect = 0; simWrong = 0;
+  document.getElementById('sim-game').style.display = 'block';
+  document.getElementById('sim-end').className = 'end-screen';
+  simLoad();
+}
+
+let trainerActive = null, trainerStep = 0, trainerInterval = null;
+
+function buildTrainerGrid() {
+  document.getElementById('protocol-grid').innerHTML = TRAINER_PROTOCOLS.map(p =>
+    `<div class="protocol-card" id="ptcard-${p.id}" onclick="selectProtocol('${p.id}')">
+      <div class="protocol-icon">${p.icon}</div>
+      <div class="protocol-name">${p.name}</div>
+      <div class="protocol-desc">${p.desc}</div>
+    </div>`
+  ).join('');
+}
+
+function selectProtocol(id) {
+  if (trainerInterval) { clearInterval(trainerInterval); trainerInterval = null; }
+  document.querySelectorAll('.protocol-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`ptcard-${id}`).classList.add('selected');
+  trainerActive = TRAINER_PROTOCOLS.find(p => p.id === id);
+  trainerStep = 0;
+  renderTrainerStep();
+}
+
+function renderTrainerStep() {
+  const p = trainerActive;
+  const s = p.steps[trainerStep];
+  const total = p.steps.length;
+  const dots = p.steps.map((_, i) =>
+    `<div class="step-dot${i < trainerStep ? ' done' : i === trainerStep ? ' active' : ''}"></div>`
+  ).join('');
+  const metroHTML = p.bpm > 0 ?
+    `<div class="metronome">
+      <div class="metro-circle" id="metro-circle">BPM<br>${p.bpm}</div>
+      <div class="metro-bpm">${p.bpm} batidas/min — ritmo das compressões</div>
+    </div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <button class="action-btn show" onclick="toggleMetro()">▶ Iniciar metrônomo</button>
+    </div>` : '';
+
+  document.getElementById('trainer-area').innerHTML = `
+    <div class="step-display">
+      <div class="step-number">Passo ${trainerStep+1} de ${total}</div>
+      <div class="step-icon-big">${s.icon}</div>
+      <div class="step-title">${s.title}</div>
+      <div class="step-detail">${s.detail}</div>
+    </div>
+    ${metroHTML}
+    <div class="step-nav">
+      <button class="action-btn show" onclick="trainerPrev()" ${trainerStep===0?'disabled':''}>← Anterior</button>
+      <div class="step-dots">${dots}</div>
+      <button class="action-btn show" onclick="trainerNext()">${trainerStep===total-1?'Reiniciar ↩':'Próximo →'}</button>
+    </div>
+  `;
+}
+
+function trainerPrev() {
+  if (trainerStep > 0) { trainerStep--; renderTrainerStep(); }
+}
+function trainerNext() {
+  if (trainerStep < trainerActive.steps.length - 1) trainerStep++;
+  else trainerStep = 0;
+  renderTrainerStep();
+}
+
+let metroOn = false, metroTimer = null;
+function toggleMetro() {
+  metroOn = !metroOn;
+  const btn = document.querySelector('.step-nav ~ div button, .metronome ~ div button') ||
+    document.querySelector('[onclick="toggleMetro()"]');
+  if (btn) btn.textContent = metroOn ? '⏸ Parar metrônomo' : '▶ Iniciar metrônomo';
+  if (metroOn) {
+    const interval = Math.round(60000 / trainerActive.bpm);
+    metroTimer = setInterval(() => {
+      const c = document.getElementById('metro-circle');
+      if (!c) { clearInterval(metroTimer); return; }
+      c.classList.add('beat');
+      setTimeout(() => c && c.classList.remove('beat'), 120);
+    }, interval);
+  } else {
+    clearInterval(metroTimer);
+  }
+}
+
+let liveScene = null, liveTime = 0, liveTimer = null, liveLog = [];
+
+function buildScenarioSelect() {
+  document.getElementById('scenario-select').innerHTML = LIVE_SCENARIOS.map(s =>
+    `<div class="scenario-opt" id="sopt-${s.id}" onclick="startLiveScene('${s.id}')">
+      <div class="scenario-opt-icon">${s.icon}</div>
+      <div class="scenario-opt-name">${s.name}</div>
+      <div class="scenario-opt-tag">${s.tag}</div>
+    </div>`
+  ).join('');
+}
+
+function startLiveScene(id) {
+  if (liveTimer) clearInterval(liveTimer);
+  liveLog = [];
+  liveTime = 0;
+  liveScene = LIVE_SCENARIOS.find(s => s.id === id);
+  document.querySelectorAll('.scenario-opt').forEach(o => o.classList.remove('active'));
+  document.getElementById(`sopt-${id}`).classList.add('active');
+  renderLiveScene();
+  liveTimer = setInterval(() => {
+    liveTime++;
+    const el = document.getElementById('live-clock');
+    if (el) {
+      const m = String(Math.floor(liveTime/60)).padStart(2,'0');
+      const s = String(liveTime%60).padStart(2,'0');
+      el.textContent = `${m}:${s}`;
+      el.className = 'live-timer' + (liveTime > 180 ? ' urgent' : '');
+    }
+  }, 1000);
+}
+
+function renderLiveScene() {
+  const s = liveScene;
+  const vitals = Object.entries(s.vitals).map(([k,v]) =>
+    `<div class="vital-sign"><div class="vital-label">${v.label}</div><div class="vital-val ${v.cls}">${v.val}</div></div>`
+  ).join('');
+  const actions = s.actions.map((a, i) =>
+    `<button class="live-action" id="lact-${i}" onclick="doAction(${i})">${a.text}</button>`
+  ).join('');
+
+  document.getElementById('live-area').innerHTML = `
+    <div class="live-scene">
+      <div class="live-top">
+        <div class="live-top-left">${s.icon} ${s.name}</div>
+        <div class="live-timer" id="live-clock">00:00</div>
+      </div>
+      <div class="victim-area">
+        <div class="victim-status">${vitals}</div>
+        <div class="victim-desc">${s.desc}</div>
+      </div>
+      <div class="actions-area">
+        <div class="actions-title">Suas ações</div>
+        <div class="action-grid">${actions}</div>
+        <div class="event-log" id="event-log">
+          <div class="log-entry" style="color:var(--text3)">Aguardando suas ações...</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function doAction(idx) {
+  const a = liveScene.actions[idx];
+  const btn = document.getElementById(`lact-${idx}`);
+  btn.disabled = true;
+  btn.className = `live-action ${a.good ? 'good-action' : 'bad-action'}`;
+  const m = String(Math.floor(liveTime/60)).padStart(2,'0');
+  const sec = String(liveTime%60).padStart(2,'0');
+  const log = document.getElementById('event-log');
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${a.good ? 'good' : 'bad'}`;
+  entry.innerHTML = `<span class="log-time">${m}:${sec}</span>${a.effect}`;
+  if (log.children[0] && log.children[0].style.color) log.innerHTML = '';
+  log.insertBefore(entry, log.firstChild);
+}
+
+
+let panelCat = 'Todos';
+
+function buildPanel() {
+  const cats = ['Todos', ...new Set(PANEL_PROTOCOLS.map(p => p.cat))];
+  document.getElementById('panel-cats').innerHTML = cats.map(c =>
+    `<button class="cat-btn${c === panelCat ? ' active' : ''}" onclick="setPanelCat('${c}')">${c}</button>`
+  ).join('');
+  renderPanel();
+}
+
+function setPanelCat(cat) {
+  panelCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderPanel();
+}
+
+function filterPanel() {
+  renderPanel();
+}
+
+function renderPanel() {
+  const q = document.getElementById('panel-search').value.toLowerCase();
+  const filtered = PANEL_PROTOCOLS.filter(p =>
+    (panelCat === 'Todos' || p.cat === panelCat) &&
+    (!q || p.title.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q))
+  );
+  if (!filtered.length) {
+    document.getElementById('protocols-list').innerHTML = '<div class="empty-state">Nenhum protocolo encontrado.</div>';
+    return;
+  }
+  document.getElementById('protocols-list').innerHTML = filtered.map((p, i) => {
+    const sevLabel = {critical:'Crítico',high:'Alto',medium:'Médio'}[p.severity];
+    const steps = p.steps.map((s, j) =>
+      `<li class="proto-step"><div class="step-num">${j+1}</div><div class="step-text">${s}</div></li>`
+    ).join('');
+    return `
+      <div class="proto-card">
+        <div class="proto-header" onclick="toggleProto(${i})">
+          <div class="proto-icon">${p.icon}</div>
+          <div class="proto-info">
+            <div class="proto-title">${p.title}</div>
+            <div class="proto-sub">${p.sub}</div>
+          </div>
+          <span class="proto-severity sev-${p.severity}">${sevLabel}</span>
+          <span class="proto-chevron" id="chev-${i}">▶</span>
+        </div>
+        <div class="proto-body" id="proto-body-${i}">
+          <ul class="proto-steps">${steps}</ul>
+          ${p.warn ? `<div class="proto-warning">${p.warn}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleProto(i) {
+  const body = document.getElementById(`proto-body-${i}`);
+  const chev = document.getElementById(`chev-${i}`);
+  const open = body.classList.contains('open');
+  body.className = `proto-body${open ? '' : ' open'}`;
+  chev.className = `proto-chevron${open ? '' : ' open'}`;
+}
+
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+
+simLoad();
+buildTrainerGrid();
+buildScenarioSelect();
+buildPanel();
+</script>
+</body>
+</html>

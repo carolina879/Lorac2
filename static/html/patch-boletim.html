@@ -1,0 +1,27 @@
+<script>
+
+(function aplicarPatchBoletim() {
+
+  function patch() {
+
+    if (!window.Boletim) {
+      return setTimeout(patch, 200);
+    }
+
+    if (!window.App || !window.ExSys) {
+      return setTimeout(patch, 300);
+    }
+
+    Boletim.injectBoletimButton();
+
+    console.log("✅ Patch Boletim aplicado");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", patch);
+  } else {
+    patch();
+  }
+
+})();
+</script>

@@ -1,0 +1,2826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lorac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css?v=3" />
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.5.4/dist/livekit-client.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  
+  <script>
+    window._qvQueue=[];
+    window.abrirQuimica=function(t){if(window.QuimicaVisual){QuimicaVisual.abrir(t);}else{window._qvQueue.push(t);}};
+  </script>
+<style>
+#auth-sub-signup-container { display: none !important; }
+#auth-sub-signup-container.visible { display: block !important; }
+#auth-sub-signup-container.visible .auth-sub {
+  display: flex; width: 100%; min-height: 100vh;
+}
+#auth-sub-signup-container .auth-form-card {
+  width: 100%; max-width: 450px; margin: 0 auto; min-height: 100vh;
+  padding: 60px 56px; box-sizing: border-box;
+  display: flex; flex-direction: column; justify-content: center;
+  background: var(--bg-0); overflow-y: auto;
+}
+#auth-sub-signup-container .auth-left {
+  display: none;
+}
+@media (max-width: 900px) {
+  #auth-sub-signup-container .auth-left { display: none; }
+  #auth-sub-signup-container .auth-form-card { width: 100%; min-width: unset; padding: 48px 28px 60px; }
+}
+
+.btn-primary, .login-btn, .signup-btn, .auth-btn {
+  background: linear-gradient(135deg, var(--accent) 0%, #f0ad55 100%) !important;
+  color: #000 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase;
+  font-size: 13px !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  box-shadow: 0 4px 15px rgba(232, 160, 74, 0.25) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+.btn-primary:hover, .login-btn:hover, .signup-btn:hover, .auth-btn:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 25px rgba(232, 160, 74, 0.45) !important;
+  filter: brightness(1.1) !important;
+}
+.btn-primary:active, .login-btn:active { transform: scale(0.96) !important; }
+
+.btn-secondary, .btn-sec, .auth-btn-sec {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-1) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(4px);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--accent) !important;
+  color: var(--text-0) !important;
+  transform: translateY(-1px) !important;
+}
+
+
+.nav-btn {
+  border-radius: 10px !important;
+  margin: 2px 0;
+  transition: all 0.2s var(--ease-out) !important;
+}
+.nav-btn.active {
+  background: var(--accent-soft) !important;
+  border: 1px solid var(--border-warm) !important;
+  box-shadow: inset 0 0 10px rgba(232, 160, 74, 0.05);
+}
+.nav-btn:hover:not(.active) {
+  background: var(--bg-3) !important;
+  transform: translateX(4px);
+}
+</style>
+</head>
+<body>
+
+<style>
+
+.nodes-svg { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; opacity: 0.8; }
+.pin.node-shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.pin.linking { box-shadow: 0 0 0 4px var(--accent) !important; }
+
+.mt-nav-dropdown { display: inline-flex; align-items: center; position: relative; }
+.mt-dropdown-content {
+  display: none; position: absolute; top: 110%; left: 0;
+  background: var(--bg-2, #1a1612); border: 1px solid var(--border, #3a3228);
+  border-radius: 12px; min-width: 180px; z-index: 10000;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5); padding: 8px; margin-top: 5px;
+  pointer-events: auto;
+}
+.mt-dropdown-content.show { display: flex; flex-direction: column; gap: 4px; }
+.mt-dropdown-content button { background: none; border: none; padding: 10px 14px; text-align: left; color: var(--text-1, #c8b89a); cursor: pointer; border-radius: 8px; font-size: 13px; transition: background 0.2s; }
+.mt-dropdown-content button:hover { background: var(--bg-3, #211d18); color: var(--accent); }
+
+.doc-panel.open { display: flex !important; flex-direction: column; background: #f0f0f0 !important; }
+.gdoc-header { background: var(--bg-1) !important; border-bottom: 1px solid var(--border) !important; }
+.gdoc-menubar { background: var(--bg-1) !important; padding: 2px 20px !important; }
+.gdoc-toolbar { 
+  background: #edf2fa !important; 
+  border-radius: 50px !important; 
+  margin: 10px 20px !important; 
+  padding: 6px 16px !important; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  color: #444 !important;
+}
+.gdt-btn { color: #444 !important; border-radius: 4px !important; }
+.gdt-btn:hover { background: rgba(0,0,0,0.05) !important; }
+.gdt-btn.active { background: #d3e3fd !important; color: #041e49 !important; }
+.gdoc-canvas { 
+  flex: 1 !important; 
+  overflow-y: auto !important; 
+  padding: 40px 20px !important; 
+  display: flex !important; 
+  justify-content: center !important;
+  background: #f8f9fa !important;
+}
+.gdoc-page { 
+  width: 794px !important; 
+  min-height: 1123px !important; 
+  background: white !important; 
+  box-shadow: 0 0 10px rgba(0,0,0,0.1) !important; 
+  padding: 2.54cm !important; 
+  color: #202124 !important;
+  outline: none !important;
+  cursor: text !important;
+  font-size: 11pt !important;
+  line-height: 1.5 !important;
+}
+.gdoc-page img { max-width: 100%; height: auto; }
+.gdt-sep { background: #ccc !important; width: 1px !important; height: 20px !important; margin: 0 8px !important; }
+
+@media print {
+  body * { visibility: hidden; }
+  #doc-editor, #doc-editor * { visibility: visible; }
+  #doc-editor { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; padding: 0 !important; }
+}
+
+.pin-board {
+  position: fixed !important;
+  inset: 40px !important;
+  background: var(--bg-1) !important;
+  z-index: 9999 !important;
+  border-radius: 20px !important;
+  display: none !important;
+  flex-direction: column !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6) !important;
+  overflow: hidden !important;
+}
+.pin-board.open { display: flex !important; }
+.pin-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+  padding: 12px 24px !important;
+  background: var(--bg-3) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.pin-color-picker { display: flex !important; gap: 10px !important; }
+.pin-color-opt { width: 32px !important; height: 32px !important; border-radius: 8px !important; cursor: pointer !important; border: 2px solid transparent !important; transition: transform 0.2s !important; }
+.pin-color-opt:hover { transform: scale(1.1) !important; }
+.pin-color-opt.active { border-color: var(--accent) !important; transform: scale(1.1) !important; }
+.pins-container { flex: 1 !important; overflow: auto !important; position: relative !important; cursor: crosshair !important; background-color: #1a1a1a; background-image: radial-gradient(rgba(255,220,170,0.1) 1px, transparent 1px); background-size: 30px 30px; }
+.pins-canvas { width: 5000px !important; height: 5000px !important; position: relative !important; }
+
+#pins-canvas .pin {
+  width: 160px;
+  min-height: 160px;
+}
+.pin {
+  padding: 16px !important;
+  box-shadow: 4px 8px 24px rgba(0,0,0,0.4) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  cursor: grab !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+  border: none !important;
+  position: absolute !important;
+}
+.pin:active { cursor: grabbing !important; transform: scale(1.05) rotate(0deg) !important; z-index: 100 !important; }
+.pin::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 12px;
+  background: rgba(0,0,0,0.05);
+}
+.pin-content {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+  color: #1a1a1a !important;
+  line-height: 1.4 !important;
+  flex: 1 !important;
+  word-break: break-word !important;
+  outline: none !important;
+}
+.pin-meta {
+  font-size: 10px !important;
+  color: rgba(0,0,0,0.4) !important;
+  margin-top: 8px !important;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.study-tools-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  padding: 16px !important;
+}
+.tool-btn {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 12px 6px !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  font-size: 10.5px !important;
+  height: auto !important;
+  aspect-ratio: 1/0.95 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: var(--accent) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.call-screen.active {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  background: var(--bg-0) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.call-screen.active.minimized {
+  inset: auto 20px 80px auto !important;
+  width: 320px !important;
+  height: 240px !important;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.call-screen.active.minimized .call-screen-header span,
+.call-screen.active.minimized .call-ctrl-btn:not(.minimize-btn):not(.leave) {
+  display: none !important;
+}
+
+.private-chat-box {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 320px; height: 420px;
+  background: var(--bg-2); border: 1px solid var(--border-warm);
+  border-radius: 16px; box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; z-index: 10000; overflow: hidden;
+}
+.private-chat-box.active { display: flex; }
+.pchat-header {
+  padding: 12px 16px; background: var(--bg-3); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pchat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.pmsg { max-width: 85%; align-self: flex-start; }
+.pmsg.own { align-self: flex-end; }
+.pmsg-bubble { 
+  padding: 8px 12px; border-radius: 12px; font-size: 13.5px; 
+  background: var(--bg-4); color: var(--text-1);
+}
+.pmsg.own .pmsg-bubble { background: var(--accent); color: var(--bg-0); font-weight: 500; }
+.pmsg-time { font-size: 10px; color: var(--text-3); margin-top: 2px; text-align: right; }
+.pchat-input-area { 
+  padding: 12px; border-top: 1px solid var(--border); background: var(--bg-3);
+  display: flex; gap: 8px;
+}
+.pchat-input { 
+  flex: 1; background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px; color: var(--text-0); font-size: 13px; outline: none;
+}
+
+#screen-login {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex;
+  flex-direction: column !important;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto !important;
+  opacity: 0;
+  z-index: 50;
+  animation: loginScreenIn .6s cubic-bezier(.16,1,.3,1) .1s forwards;
+}
+@keyframes loginScreenIn { from{opacity:0} to{opacity:1} }
+
+.login-panel-left {
+  display: none;
+  background: var(--bg-1);
+  overflow: hidden;
+
+}
+.login-panel-left::before {
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1;
+}
+.login-glow { position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none; }
+.login-glow-1 { width:480px;height:480px;top:-120px;left:-80px;background:radial-gradient(circle,rgba(232,160,74,.15) 0%,transparent 70%);animation:loginGlowDrift 8s ease-in-out infinite alternate; }
+.login-glow-2 { width:360px;height:360px;bottom:-100px;right:-60px;background:radial-gradient(circle,rgba(201,106,74,.12) 0%,transparent 70%);animation:loginGlowDrift 12s ease-in-out infinite alternate-reverse; }
+@keyframes loginGlowDrift { from{transform:translate(0,0) scale(1)} to{transform:translate(30px,20px) scale(1.08)} }
+
+.login-panel-left-inner { position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:48px 52px; }
+.login-logo { display:flex;align-items:center;gap:10px; }
+.login-logo-icon { font-size:26px;line-height:1;filter:drop-shadow(0 0 8px rgba(232,160,74,.5)); }
+.login-logo-text { font-family:var(--font-display);font-size:22px;color:var(--text-0);letter-spacing:-.01em; }
+.login-hero { margin-top:auto;padding-bottom:8px; }
+.login-tag { display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(232,160,74,.12);border:1px solid rgba(232,160,74,.22);padding:4px 10px;border-radius:100px;margin-bottom:28px;opacity:0;animation:loginFadeUp .5s cubic-bezier(.16,1,.3,1) .4s forwards; }
+.login-tag-dot { width:6px;height:6px;background:var(--accent);border-radius:50%;animation:loginPulse 2s ease-in-out infinite; }
+@keyframes loginPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.login-headline { font-family:var(--font-display);font-size:clamp(38px,4vw,56px);line-height:1.08;color:var(--text-0);margin-bottom:20px;opacity:0;animation:loginFadeUp .5s cubic-bezier(.16,1,.3,1) .55s forwards; }
+.login-headline em { font-style:italic;color:var(--accent); }
+.login-subtitle { font-size:16px;line-height:1.65;color:var(--text-1);max-width:380px;opacity:0;animation:loginFadeUp .5s cubic-bezier(.16,1,.3,1) .68s forwards; }
+.login-social-proof { margin-top:52px;display:flex;align-items:center;gap:16px;opacity:0;animation:loginFadeUp .5s cubic-bezier(.16,1,.3,1) .8s forwards; }
+.login-avatars { display:flex; }
+.login-avatar-circle { width:32px;height:32px;border-radius:50%;border:2px solid var(--bg-1);background:var(--bg-4);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);margin-left:-10px; }
+.login-avatar-circle:first-child { margin-left:0; }
+.login-social-text { font-size:13px;color:var(--text-2); }
+.login-social-text strong { color:var(--text-1);font-weight:500; }
+.login-features { margin-top:32px;display:flex;flex-wrap:wrap;gap:10px;opacity:0;animation:loginFadeUp .5s cubic-bezier(.16,1,.3,1) .92s forwards; }
+.login-feature-pill { display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2);background:var(--bg-3);border:1px solid rgba(255,220,170,.07);padding:6px 12px;border-radius:100px;transition:color .12s,border-color .12s; }
+.login-feature-pill:hover { color:var(--text-1);border-color:rgba(232,160,74,.22); }
+.login-feature-pill svg { color:var(--accent);flex-shrink:0; }
+@keyframes loginFadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.login-panel-right { width:100%; max-width: 450px; display:flex;align-items:center;justify-content:center;background:var(--bg-0);padding:48px 40px; }
+.login-form-card { width:100%;max-width:380px;opacity:0;animation:loginFadeUp .55s cubic-bezier(.16,1,.3,1) .3s forwards; }
+.login-form-eyebrow { font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:24px; }
+.login-form-title { font-family:var(--font-display);font-size:32px;line-height:1.1;color:var(--text-0);margin-bottom:8px; }
+.login-form-desc { font-size:14px;color:var(--text-2);margin-bottom:36px;line-height:1.6; }
+.login-field { margin-bottom:14px; }
+.login-label { display:block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--text-2);margin-bottom:7px;text-transform:uppercase; }
+.login-input-wrap { position:relative; }
+.login-input-icon { position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none;transition:color .22s; }
+.login-input-wrap:focus-within .login-input-icon { color:var(--accent); }
+.login-input { width:100%;background:var(--bg-2);border:1px solid rgba(255,220,170,.07);border-radius:14px;padding:13px 14px 13px 42px;font-family:var(--font-body);font-size:15px;color:var(--text-0);outline:none;transition:border-color .22s,background .22s,box-shadow .22s;color-scheme:dark; }
+.login-input::placeholder { color:var(--text-3); }
+.login-input:focus { border-color:rgba(232,160,74,.22);background:var(--bg-3);box-shadow:0 0 0 3px rgba(232,160,74,.12); }
+.login-input:-webkit-autofill,.login-input:-webkit-autofill:hover,.login-input:-webkit-autofill:focus { -webkit-box-shadow:0 0 0 1000px #1e1a15 inset !important;-webkit-text-fill-color:#f0e8de !important;border-color:rgba(232,160,74,.22) !important; }
+.login-btn { width:100%;margin-top:8px;padding:14px;background:var(--accent);border:none;border-radius:14px;font-family:var(--font-body);font-size:15px;font-weight:600;color:var(--bg-0);cursor:pointer;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .22s,background .22s;position:relative;overflow:hidden; }
+.login-btn::after { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);pointer-events:none; }
+.login-btn:hover:not(:disabled) { transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,160,74,.35);background:#f0ad55; }
+.login-btn:active:not(:disabled) { transform:translateY(0);box-shadow:none; }
+.login-btn:disabled { opacity:.55;cursor:not-allowed; }
+.login-btn-spinner { width:18px;height:18px;border:2px solid rgba(0,0,0,.25);border-top-color:var(--bg-0);border-radius:50%;animation:loginSpin .7s linear infinite;display:none; }
+.login-btn.loading .login-btn-spinner { display:block; }
+.login-btn.loading .login-btn-text { opacity:0;position:absolute; }
+@keyframes loginSpin { to{transform:rotate(360deg)} }
+.login-error { display:none;align-items:center;gap:8px;font-size:13px;color:#e07060;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:8px;padding:10px 14px;margin-top:14px; }
+.login-error.visible, .login-error.show { display:flex; }
+.login-hint { font-size:12px;color:var(--text-3);text-align:center;margin-top:20px;line-height:1.6; }
+.login-hint a { color:var(--accent);text-decoration:none; }
+.login-hint a:hover { text-decoration:underline; }
+.login-rule { margin-top:28px;border:none;border-top:1px solid rgba(255,220,170,.04); }
+
+@media(max-width:860px) {
+  #screen-login { flex-direction:column;overflow-y:auto; }
+  .login-panel-left { width:100%;min-height:260px; }
+  .login-panel-right { width:100%;padding:40px 24px 60px; }
+  .login-hero { margin-top:24px; }
+  .login-headline { font-size:34px; }
+}
+
+.auth-role-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.auth-role-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: var(--bg-2);
+  border: 1.5px solid rgba(255,220,170,.07);
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color .22s, background .22s, color .22s, box-shadow .22s;
+  user-select: none;
+}
+.auth-role-tab svg { flex-shrink: 0; }
+.auth-role-tab:hover {
+  border-color: rgba(232,160,74,.22);
+  color: var(--text-1);
+  background: var(--bg-3);
+}
+.auth-role-tab.active {
+  border-color: var(--accent);
+  background: rgba(232,160,74,.12);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,160,74,.1);
+}
+
+
+.login-signup-link {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.login-signup-link a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.login-signup-link a:hover { text-decoration: underline; }
+
+</style>
+
+<div id="screen-login" class="screen active" style="position:fixed;inset:0;z-index:100;overflow-y:auto;min-height:100vh;">
+  <div class="login-panel-left">
+    <div class="login-glow login-glow-1"></div>
+    <div class="login-glow login-glow-2"></div>
+    <div class="login-panel-left-inner">
+      <div class="login-logo">
+        <span class="login-logo-icon">⬡</span>
+        <span class="login-logo-text">Lorac</span>
+      </div>
+      <div class="login-hero">
+        <div class="login-tag"><span class="login-tag-dot"></span>Estudo colaborativo em tempo real</div>
+        <h1 class="login-headline">Estude junto.<br>Avance <em>mais longe.</em></h1>
+        <p class="login-subtitle">Salas de foco compartilhado, chat, chamada de vídeo e acompanhamento do seu progresso — tudo em um só lugar.</p>
+        <div class="login-social-proof">
+          <div class="login-avatars">
+            <div class="login-avatar-circle">M</div>
+            <div class="login-avatar-circle">J</div>
+            <div class="login-avatar-circle">A</div>
+            <div class="login-avatar-circle">R</div>
+          </div>
+          <p class="login-social-text"><strong>Alunos estudando agora</strong> em salas abertas</p>
+        </div>
+        <div class="login-features">
+          <span class="login-feature-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Timer Pomodoro</span>
+          <span class="login-feature-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat em tempo real</span>
+          <span class="login-feature-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Chamada de vídeo</span>
+          <span class="login-feature-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Estatísticas</span>
+          <span class="login-feature-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda pessoal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-panel-right">
+    <div class="login-form-card">
+      <p class="login-form-eyebrow">Acesso à plataforma</p>
+      <h2 class="login-form-title">Bem-vindo de volta.</h2>
+      <p class="login-form-desc">Entre com seu usuário e senha para continuar.</p>
+
+      <div class="auth-role-tabs" style="margin-bottom:22px">
+        <button class="auth-role-tab active" id="ltab-aluno" onclick="AuthUI.setLoginRole('aluno')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Aluno
+        </button>
+        <button class="auth-role-tab" id="ltab-professor" onclick="AuthUI.setLoginRole('professor')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Professor
+        </button>
+      </div>
+
+      <div class="login-field">
+        <label class="login-label" for="login-username">Usuário ou e-mail</label>
+        <div class="login-input-wrap">
+          <svg class="login-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input id="login-username" class="login-input" type="text" placeholder="Seu usuário ou e-mail" autocomplete="username" oninput="AuthUI.clearLoginErr()" onkeydown="if(event.key==='Enter')AuthUI.doLogin()" />
+        </div>
+      </div>
+
+      <div class="login-field">
+        <label class="login-label" for="login-password">Senha</label>
+        <div class="login-input-wrap">
+          <svg class="login-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <input id="login-password" class="login-input" type="password" placeholder="Sua senha" autocomplete="current-password" oninput="AuthUI.clearLoginErr()" onkeydown="if(event.key==='Enter')AuthUI.doLogin()" />
+          <button class="auth-pw-eye" type="button" onclick="AuthUI.toggleEye('login-password',this)" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:2px;line-height:1;transition:color .12s">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="login-btn" id="l-btn" onclick="AuthUI.doLogin()">
+        <span class="login-btn-spinner"></span>
+        <span class="login-btn-text">Entrar na plataforma</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+      <div class="login-error" id="l-err">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="l-err-txt">Usuário ou senha incorretos.</span>
+      </div>
+
+      <hr class="login-rule" />
+      <p class="login-hint">Ainda não tem conta? <a href="/static/html/signup-screen.html">Criar conta gratuita</a></p>
+    </div>
+  </div>
+
+  <div id="auth-sub-signup-container" style="display:none;position:fixed;inset:0;z-index:10;background:var(--bg-0);width:100%;height:100%">
+    <div class="auth-sub" style="display:flex;width:100%;height:100%">
+    
+      <div class="auth-form-card">
+        <div class="auth-logo" style="margin-bottom:26px">
+          <span class="auth-logo-icon">⬡</span>
+          <span class="auth-logo-text">Lorac</span>
+        </div>
+
+        
+        <div class="auth-steps">
+          <div class="auth-step-ind active" id="si-1"><div class="auth-step-num">1</div><span>Conta</span></div>
+          <div class="auth-step-line" id="sl-1"></div>
+          <div class="auth-step-ind" id="si-2"><div class="auth-step-num">2</div><span>Perfil</span></div>
+          <div class="auth-step-line" id="sl-2"></div>
+          <div class="auth-step-ind" id="si-3"><div class="auth-step-num">3</div><span>Pronto!</span></div>
+        </div>
+
+        
+        <div id="su-s1">
+          <p class="auth-eyebrow">Criar conta gratuita</p>
+          <h2 class="auth-title">Quem é você?</h2>
+          <p class="auth-desc">Escolha seu perfil e configure seu acesso.</p>
+
+          <div class="auth-role-tabs">
+            <button class="auth-role-tab active" id="stab-aluno" onclick="AuthUI.setRole('aluno')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Aluno
+            </button>
+            <button class="auth-role-tab" id="stab-professor" onclick="AuthUI.setRole('professor')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Professor
+            </button>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="su-un">Nome de usuário <span id="su-un-badge" style="font-size:11px;color:var(--text-3);text-transform:none;letter-spacing:0;font-weight:400"></span></label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input id="su-un" class="auth-inp" type="text" placeholder="Ex.: Maria, Joao123…" maxlength="40" autocomplete="off" oninput="AuthUI.debounceUser()"/>
+              <svg class="auth-inp-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="auth-field-hint" id="h-un">Mínimo 2 caracteres.</div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="su-em">E-mail <span style="color:var(--text-3);font-size:10px;text-transform:none;letter-spacing:0;font-weight:400">(opcional)</span></label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input id="su-em" class="auth-inp" type="email" placeholder="voce@email.com" autocomplete="email" oninput="AuthUI.validateEmail()"/>
+              <svg class="auth-inp-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="auth-field-hint" id="h-em">Para recuperação de conta.</div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="su-pw">Senha</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input id="su-pw" class="auth-inp" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="AuthUI.checkStr()"/>
+              <button class="auth-pw-eye" type="button" onclick="AuthUI.toggleEye('su-pw',this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="auth-pw-str"><div class="auth-pw-seg" id="ps1"></div><div class="auth-pw-seg" id="ps2"></div><div class="auth-pw-seg" id="ps3"></div></div>
+            <div class="auth-field-hint" id="h-pw">Mínimo 6 caracteres.</div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="su-pw2">Confirmar senha</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input id="su-pw2" class="auth-inp" type="password" placeholder="Repita a senha" autocomplete="new-password" oninput="AuthUI.checkPw2()"/>
+              <button class="auth-pw-eye" type="button" onclick="AuthUI.toggleEye('su-pw2',this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="auth-field-hint" id="h-pw2"></div>
+          </div>
+
+          <button class="auth-btn" onclick="AuthUI.goS2()">
+            <span class="auth-btn-spin"></span>
+            <span class="auth-btn-lbl">Continuar</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <div class="auth-err-box" id="err-s1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="err-s1-txt">Corrija os campos.</span></div>
+          <hr class="auth-rule"/>
+          <p class="auth-foot">Já tem conta? <a href="#" onclick="AuthUI.goLoginPage();return false;">Entrar agora</a></p>
+        </div>
+
+        
+        <div id="su-s2" style="display:none">
+          <p class="auth-eyebrow">Personalizar perfil</p>
+          <h2 class="auth-title">Olá, <span id="s2-name"></span>!</h2>
+          <p class="auth-desc">Deixa a gente conhecer você melhor.</p>
+
+          <div class="auth-field">
+            <div class="auth-label">Escolha seu avatar</div>
+            <div class="auth-av-row">
+              <div class="auth-av-opt a-sel" data-e="🦊" onclick="AuthUI.selAv(this)">🦊</div>
+              <div class="auth-av-opt" data-e="🐻" onclick="AuthUI.selAv(this)">🐻</div>
+              <div class="auth-av-opt" data-e="🐨" onclick="AuthUI.selAv(this)">🐨</div>
+              <div class="auth-av-opt" data-e="🦁" onclick="AuthUI.selAv(this)">🦁</div>
+              <div class="auth-av-opt" data-e="🐙" onclick="AuthUI.selAv(this)">🐙</div>
+              <div class="auth-av-opt" data-e="🦅" onclick="AuthUI.selAv(this)">🦅</div>
+              <div class="auth-av-opt" data-e="⚡" onclick="AuthUI.selAv(this)">⚡</div>
+              <div class="auth-av-opt" data-e="🌿" onclick="AuthUI.selAv(this)">🌿</div>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" id="area-lbl" for="su-area">Área de estudo</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              <select id="su-area" class="auth-sel">
+                <option value="">Selecionar…</option>
+                <option>Matemática</option><option>Português</option><option>Ciências Naturais</option>
+                <option>História &amp; Geografia</option><option>Programação &amp; Tecnologia</option>
+                <option>Artes &amp; Design</option><option>Idiomas</option><option>Concursos Públicos</option><option>Outro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label">Meta diária: <span id="goal-val" style="color:var(--accent)">60 min</span></label>
+            <input id="su-goal" class="auth-range" type="range" min="15" max="480" step="15" value="60" oninput="document.getElementById('goal-val').textContent=this.value+' min'"/>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="su-bio">Bio <span style="color:var(--text-3);font-size:10px;text-transform:none;letter-spacing:0;font-weight:400">(opcional)</span></label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" style="top:13px;transform:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+              <textarea id="su-bio" class="auth-inp auth-ta" placeholder="Fale sobre você…" maxlength="160" oninput="document.getElementById('h-bio').textContent=this.value.length+'/160'"></textarea>
+            </div>
+            <div class="auth-field-hint" id="h-bio">0/160</div>
+          </div>
+
+          <button class="auth-btn" id="s2-btn" onclick="AuthUI.submitSignup()">
+            <span class="auth-btn-spin"></span>
+            <span class="auth-btn-lbl">Criar minha conta</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="auth-btn-sec" onclick="AuthUI.goS1Back()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Voltar
+          </button>
+          <div class="auth-err-box" id="err-s2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="err-s2-txt">Erro ao criar conta.</span></div>
+        </div>
+
+        
+        <div id="su-s3" style="display:none">
+          <div class="auth-success">
+            <div class="auth-success-icon">✓</div>
+            <h3 id="s3-title">Bem-vindo!</h3>
+            <p id="s3-desc">Conta criada com sucesso. Você já pode entrar nas salas de estudo.</p>
+            <button class="auth-btn" style="width:auto;padding:12px 32px" onclick="AuthUI.enterApp()">
+              <span class="auth-btn-lbl">Entrar na plataforma</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+    </div>
+
+    <div class="auth-left">
+      <div class="a-glow a-glow-1"></div>
+      <div class="a-glow a-glow-2"></div>
+      <div class="auth-panel-inner" style="justify-content:center;padding-top:60px">
+        <p style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:28px">Por que entrar agora</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px">
+          <div style="background:var(--bg-3);border:1px solid rgba(255,220,170,.07);border-radius:14px;padding:16px"><div style="font-family:var(--font-display);font-size:26px;color:var(--accent);margin-bottom:4px">3.2×</div><div style="font-size:12px;color:var(--text-2);line-height:1.4">mais produtivo em grupo</div></div>
+          <div style="background:var(--bg-3);border:1px solid rgba(255,220,170,.07);border-radius:14px;padding:16px"><div style="font-family:var(--font-display);font-size:26px;color:var(--accent);margin-bottom:4px">47%</div><div style="font-size:12px;color:var(--text-2);line-height:1.4">mais retenção com foco</div></div>
+          <div style="background:var(--bg-3);border:1px solid rgba(255,220,170,.07);border-radius:14px;padding:16px"><div style="font-family:var(--font-display);font-size:26px;color:var(--accent);margin-bottom:4px">12k+</div><div style="font-size:12px;color:var(--text-2);line-height:1.4">sessões registradas</div></div>
+          <div style="background:var(--bg-3);border:1px solid rgba(255,220,170,.07);border-radius:14px;padding:16px"><div style="font-family:var(--font-display);font-size:26px;color:var(--accent);margin-bottom:4px">98%</div><div style="font-size:12px;color:var(--text-2);line-height:1.4">voltam no dia seguinte</div></div>
+        </div>
+        <div style="background:var(--bg-3);border:1px solid rgba(255,220,170,.07);border-radius:14px;padding:18px;margin-bottom:20px">
+          <p style="font-size:13px;color:var(--text-1);line-height:1.65;font-style:italic;margin-bottom:14px">"Finalmente mantive uma rotina de estudos de verdade. A sala de foco compartilhado faz toda a diferença."</p>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-4);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--accent);font-weight:600;border:1.5px solid rgba(232,160,74,.22)">C</div>
+            <div><div style="font-size:13px;font-weight:500;color:var(--text-0)">Carolina M.</div><div style="font-size:11.5px;color:var(--text-2)">Medicina • 3º ano</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);margin-bottom:6px"><span>Usuários ativos hoje</span><span style="color:var(--accent)">72%</span></div>
+          <div style="height:4px;background:var(--bg-4);border-radius:4px;overflow:hidden"><div style="height:100%;width:72%;background:linear-gradient(90deg,#c96a4a,var(--accent));border-radius:4px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
+</div>
+<script>
+
+const AuthUI = (() => {
+  const S = {
+    loginRole: 'aluno',
+    signupRole: 'aluno',
+    username: '', email: '', password: '',
+    avatar: '🦊', area: '', bio: '', goal: 60,
+    createdUser: null,
+    unAvailable: null,
+    unTimer: null,
+  };
+
+  
+  function goSignup() {
+ 
+    document.getElementById('auth-sub-signup-container').classList.add('visible');
+    setTimeout(() => document.getElementById('su-un')?.focus(), 200);
+  }
+  function goLoginPage() {
+
+    document.getElementById('auth-sub-signup-container').classList.remove('visible');
+    setTimeout(() => document.getElementById('login-username')?.focus(), 200);
+  }
+
+  
+  function setLoginRole(r) {
+    S.loginRole = r;
+    document.getElementById('ltab-aluno').classList.toggle('active', r==='aluno');
+    document.getElementById('ltab-professor').classList.toggle('active', r==='professor');
+  }
+  function setRole(r) {
+    S.signupRole = r;
+    document.getElementById('stab-aluno').classList.toggle('active', r==='aluno');
+    document.getElementById('stab-professor').classList.toggle('active', r==='professor');
+    document.getElementById('area-lbl').textContent = r==='professor' ? 'Área de ensino' : 'Área de estudo';
+  }
+
+  
+  function toggleEye(id, btn) {
+    const inp = document.getElementById(id);
+    if (!inp) return;
+    const isPassword = inp.type === 'password';
+    inp.type = isPassword ? 'text' : 'password';
+    btn.innerHTML = isPassword 
+      ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
+  
+  function clearLoginErr() { document.getElementById('l-err').classList.remove('show','visible'); }
+
+  async function doLogin() {
+    const identifier = document.getElementById('login-username').value.trim();
+    const password   = document.getElementById('login-password').value;
+    const btn        = document.getElementById('l-btn');
+
+    if (!identifier) { showLoginErr('Informe seu usuário ou e-mail.'); return; }
+    if (!password)   { showLoginErr('Informe sua senha.'); return; }
+
+    btn.classList.add('loading'); btn.disabled = true; clearLoginErr();
+    try {
+      const res = await fetch('/api/auth/login', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ identifier, password })
+      });
+      const data = await res.json();
+      if (!res.ok) { showLoginErr(data.detail || 'Usuário ou senha incorretos.'); return; }
+
+      
+      if (data.user.role && data.user.role !== S.loginRole) {
+        const lbl = data.user.role === 'professor' ? 'professor' : 'aluno';
+        showLoginErr(`Esta conta é de ${lbl}. Selecione o perfil correto.`);
+        return;
+      }
+      localStorage.setItem('studysync_user', JSON.stringify(data.user));
+      enterApp(data.user);
+    } catch(e) {
+      showLoginErr('Servidor indisponível. Tente novamente.');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+  }
+
+  function showLoginErr(msg) {
+    document.getElementById('l-err-txt').textContent = msg;
+    document.getElementById('l-err').classList.add('show','visible');
+  }
+
+  
+  function debounceUser() {
+    clearTimeout(S.unTimer);
+    S.unTimer = setTimeout(checkUsername, 500);
+    const v = document.getElementById('su-un').value.trim();
+    const inp = document.getElementById('su-un');
+    const hint = document.getElementById('h-un');
+    if (!v) { inp.classList.remove('a-ok','a-err'); hint.textContent='Mínimo 2 caracteres.'; hint.className='auth-field-hint'; S.unAvailable=null; return; }
+    if (v.length < 2) { inp.classList.add('a-err'); inp.classList.remove('a-ok'); hint.textContent='Muito curto.'; hint.className='auth-field-hint a-err'; S.unAvailable=false; }
+  }
+
+  async function checkUsername() {
+    const v = document.getElementById('su-un').value.trim();
+    const inp = document.getElementById('su-un');
+    const hint = document.getElementById('h-un');
+    const badge = document.getElementById('su-un-badge');
+    if (v.length < 2) return;
+    try {
+      const r = await fetch('/api/auth/check-username?username=' + encodeURIComponent(v));
+      const d = await r.json();
+      S.unAvailable = d.available;
+      if (d.available) {
+        inp.classList.add('a-ok'); inp.classList.remove('a-err');
+        hint.textContent='✓ Disponível'; hint.className='auth-field-hint a-ok';
+        badge.textContent='✓'; badge.style.color='var(--sage)';
+      } else {
+        inp.classList.add('a-err'); inp.classList.remove('a-ok');
+        hint.textContent='Nome já em uso.'; hint.className='auth-field-hint a-err';
+        badge.textContent='✗ Em uso'; badge.style.color='#e07060';
+      }
+    } catch { S.unAvailable = true; }
+  }
+
+  function validateEmail() {
+    const inp = document.getElementById('su-em');
+    const hint = document.getElementById('h-em');
+    const v = inp.value.trim();
+    if (!v) { inp.classList.remove('a-ok','a-err'); hint.textContent='Para recuperação de conta.'; hint.className='auth-field-hint'; return true; }
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    inp.classList.toggle('a-ok',ok); inp.classList.toggle('a-err',!ok);
+    hint.textContent = ok ? '✓ E-mail válido' : 'Formato inválido.';
+    hint.className = 'auth-field-hint '+(ok?'a-ok':'a-err');
+    return ok || !v;
+  }
+
+  function checkStr() {
+    const v = document.getElementById('su-pw').value;
+    const hint = document.getElementById('h-pw');
+    const segs = ['ps1','ps2','ps3'].map(id => document.getElementById(id));
+    segs.forEach(s => { s.className='auth-pw-seg'; });
+    if (!v) { hint.textContent='Mínimo 6 caracteres.'; hint.className='auth-field-hint'; return; }
+    let sc = 0;
+    if (v.length >= 6) sc++;
+    if (v.length >= 10) sc++;
+    if (/[A-Z]/.test(v) && /[0-9!@#$%]/.test(v)) sc++;
+    const cls = ['s-weak','s-mid','s-str'];
+    const lbls = ['Fraca','Média','Forte'];
+    for (let i=0;i<sc;i++) segs[i].classList.add(cls[sc-1]);
+    hint.textContent = lbls[sc-1]||''; hint.className = 'auth-field-hint '+(sc<2?'a-err':sc===3?'a-ok':'');
+    checkPw2();
+  }
+
+  function checkPw2() {
+    const pw1 = document.getElementById('su-pw').value;
+    const inp = document.getElementById('su-pw2');
+    const hint = document.getElementById('h-pw2');
+    const pw2 = inp.value;
+    if (!pw2) { inp.classList.remove('a-ok','a-err'); hint.textContent=''; return; }
+    const m = pw1===pw2;
+    inp.classList.toggle('a-ok',m); inp.classList.toggle('a-err',!m);
+    hint.textContent = m ? '✓ Senhas coincidem' : 'Senhas não coincidem.';
+    hint.className = 'auth-field-hint '+(m?'a-ok':'a-err');
+  }
+
+  
+  function showErrS1(msg) { document.getElementById('err-s1-txt').textContent=msg; document.getElementById('err-s1').classList.add('show'); }
+  function hideErrS1()    { document.getElementById('err-s1').classList.remove('show'); }
+
+  function goS2() {
+    hideErrS1();
+    const un  = document.getElementById('su-un').value.trim();
+    const em  = document.getElementById('su-em').value.trim();
+    const pw  = document.getElementById('su-pw').value;
+    const pw2 = document.getElementById('su-pw2').value;
+    if (un.length < 2)           { showErrS1('Nome de usuário deve ter pelo menos 2 caracteres.'); return; }
+    if (S.unAvailable === false)  { showErrS1('Nome de usuário já está em uso.'); return; }
+    if (pw.length < 6)           { showErrS1('Senha deve ter pelo menos 6 caracteres.'); return; }
+    if (pw !== pw2)              { showErrS1('As senhas não coincidem.'); return; }
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showErrS1('E-mail inválido.'); return; }
+    S.username=un; S.email=em; S.password=pw;
+    document.getElementById('su-s1').style.display='none';
+    document.getElementById('su-s2').style.display='';
+    document.getElementById('s2-name').textContent=un;
+    setStepInd(2);
+  }
+
+  function goS1Back() {
+    document.getElementById('su-s2').style.display='none';
+    document.getElementById('su-s1').style.display='';
+    setStepInd(1);
+  }
+
+  function setStepInd(n) {
+    [1,2,3].forEach(i => {
+      const el = document.getElementById('si-'+i);
+      el.classList.remove('active','done');
+      if (i<n)  { el.classList.add('done');   el.querySelector('.auth-step-num').textContent='✓'; }
+      if (i===n){ el.classList.add('active');  el.querySelector('.auth-step-num').textContent=i; }
+      if (i>n)    el.querySelector('.auth-step-num').textContent=i;
+    });
+    [1,2].forEach(i => document.getElementById('sl-'+i).classList.toggle('done', i<n));
+  }
+
+  
+  function selAv(el) {
+    document.querySelectorAll('.auth-av-opt').forEach(o=>o.classList.remove('a-sel'));
+    el.classList.add('a-sel');
+    S.avatar = el.dataset.e;
+  }
+
+  
+  async function submitSignup() {
+    S.area = document.getElementById('su-area').value;
+    S.goal = parseInt(document.getElementById('su-goal').value)||60;
+    S.bio  = document.getElementById('su-bio').value.trim();
+    const btn = document.getElementById('s2-btn');
+    document.getElementById('err-s2').classList.remove('show');
+    btn.classList.add('loading'); btn.disabled=true;
+    try {
+      const res = await fetch('/api/auth/register', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ username:S.username, password:S.password, role:S.signupRole, email:S.email, avatar:S.avatar, area:S.area, bio:S.bio, goal_minutes:S.goal })
+      });
+      const data = await res.json();
+      if (!res.ok) { document.getElementById('err-s2-txt').textContent=data.detail||'Erro ao criar conta.'; document.getElementById('err-s2').classList.add('show'); return; }
+      S.createdUser = data.user;
+      localStorage.setItem('studysync_user', JSON.stringify(data.user));
+      document.getElementById('su-s2').style.display='none';
+      document.getElementById('su-s3').style.display='';
+      setStepInd(3);
+      const rl = S.signupRole==='professor' ? 'Professor' : 'Aluno';
+      document.getElementById('s3-title').textContent='Bem-vindo, '+S.username+'!';
+      document.getElementById('s3-desc').innerHTML='Conta de <strong>'+rl+'</strong> criada com sucesso. Você já pode entrar nas salas de estudo.';
+    } catch(e) {
+      document.getElementById('err-s2-txt').textContent='Servidor indisponível.';
+      document.getElementById('err-s2').classList.add('show');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled=false;
+    }
+  }
+
+  
+  function enterApp(user) {
+    const u = user || S.createdUser || JSON.parse(localStorage.getItem('studysync_user')||'null');
+    if (!u) return;
+
+    if (typeof App !== 'undefined') {
+      App.loginWithUser(u);
+    }
+  }
+
+  return { goSignup, goLoginPage, setLoginRole, setRole, toggleEye, clearLoginErr, doLogin, debounceUser, validateEmail, checkStr, checkPw2, goS2, goS1Back, selAv, submitSignup, enterApp };
+})();
+</script>
+
+<div id="screen-rooms" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn active" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Vídeos Educativos</div>
+          <button onclick="EduShorts.abrir()">🎬 EduShorts</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="header-avatar">A</div>
+        <span id="header-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+  <main class="rooms-main">
+    <div class="rooms-header">
+      <h1>Salas de Estudo</h1>
+      <p>Escolha uma sala e comece a estudar com outros alunos em tempo real.</p>
+    </div>
+    <div class="rooms-actions">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="room-search" placeholder="Buscar sala..." oninput="App.filterRooms(this.value)" />
+      </div>
+      <button class="btn-secondary" onclick="App.openCreateRoom()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Sala
+      </button>
+    </div>
+    <div id="rooms-grid" class="rooms-grid">
+      <div class="room-skeleton"></div><div class="room-skeleton"></div><div class="room-skeleton"></div>
+    </div>
+  </main>
+</div>
+
+<div id="screen-study" class="screen">
+  <div class="study-layout">
+    <aside class="study-sidebar">
+      <div class="sidebar-header">
+        <button class="btn-back" onclick="App.leaveRoom()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="room-info"><span class="room-icon">📚</span><span id="current-room-name" class="room-title">Sala</span></div>
+      </div>
+
+      <div class="focus-panel">
+        <div class="focus-phase-badge" id="focus-phase-badge">FOCO</div>
+        <div class="focus-timer" id="focus-timer">25:00</div>
+        <div class="focus-progress"><div class="focus-progress-bar" id="focus-progress-bar"></div></div>
+        <div class="focus-controls">
+          <button class="focus-btn" id="btn-focus-start" onclick="App.startFocus()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          </button>
+          <button class="focus-btn" id="btn-focus-stop" onclick="App.stopFocus()" style="display:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <select class="focus-select" id="focus-duration">
+            <option value="25">25 min</option><option value="50">50 min</option><option value="5">5 min (teste)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="study-tools-row">
+        <button class="tool-btn" id="btn-tool-wb" onclick="App.toggleWhiteboard()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Lousa
+        </button>
+        <button class="tool-btn" id="btn-tool-fc" onclick="App.toggleFlashcards()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cards
+        </button>
+        <button class="tool-btn" id="btn-tool-doc" onclick="App.toggleDoc()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Doc
+        </button>
+        <button class="tool-btn" id="btn-tool-code" onclick="App.toggleCodeEditor()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          Code
+        </button>
+        <button class="tool-btn" id="btn-tool-mindmap" onclick="App.toggleMindMap()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v8m0 0l4 4m-4-4l-4 4m4-12a4 4 0 110 8 4 4 0 010-8z"/>
+            <circle cx="18" cy="16" r="3"/>
+            <circle cx="6" cy="16" r="3"/>
+          </svg>
+          Mapa
+        </button>
+        <button class="tool-btn" onclick="App.togglePinBoard()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 4 8 12 8 12s8-8 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+          Mural
+        </button>
+        <button class="tool-btn" id="btn-tool-pdf" onclick="App.togglePdfReader()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
+          PDF
+        </button>
+        <button class="tool-btn" id="btn-tool-translator" onclick="App.toggleTranslator()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/></svg>
+          Traduzir
+        </button>
+        <button class="tool-btn" onclick="GaleriaArte.abrir()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Galeria
+        </button>
+        <button class="tool-btn" onclick="GeologiaTectonica.abrir()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Geologia
+        </button>
+        <button class="tool-btn" onclick="EducacaoFinanceira.abrir()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Finanças
+        </button>
+        <button class="tool-btn" onclick="BancoCentralVirtual.abrir()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m6-6h-6m-6 0h6"/></svg>
+          Banco Central
+        </button>
+        <button class="tool-btn" onclick="FerramentasIA.openPanel()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Ferramentas IA
+        </button>
+        <button class="tool-btn" onclick="PrimeirosSocorros.abrir()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L6 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-6-3z"/><path d="M10 14l2 2 4-4"/></svg>
+          Primeiros Socorros
+        </button>
+        <button class="tool-btn" onclick="BibliotecaVirtual.abrir()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Biblioteca
+        </button>
+        <button class="tool-btn" onclick="LibrasDictionary.abrir()">
+          <span style="font-size: 18px;">🤟</span>
+          Libras
+        </button>
+      </div>
+
+      <div class="call-panel">
+        <div class="call-header"><span class="call-title">Chamada de Vídeo</span><div class="call-indicator" id="call-indicator"></div></div>
+        <button class="btn-call" id="btn-call" onclick="App.toggleCall()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.29 9.82 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Entrar na Chamada
+        </button>
+      </div>
+
+      <div class="users-panel" style="padding-bottom:0">
+        <div class="panel-header"><span>Conversas</span></div>
+        <div id="recent-pchats-list" class="users-list"></div>
+      </div>
+
+      <div class="users-panel">
+        <div class="panel-header"><span>Online</span><span class="online-badge" id="online-count">0</span></div>
+        <div id="users-list" class="users-list"></div>
+      </div>
+
+      <div class="files-panel">
+        <div class="panel-header">📎 Materiais Compartilhados</div>
+        <input type="file" id="file-upload" style="display:none" onchange="App.uploadFile()" />
+        <button class="btn-secondary small" onclick="document.getElementById('file-upload').click()" style="width:100%; margin-bottom:10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-3-3m3 3 3-3M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Compartilhar Arquivo
+        </button>
+        <div id="room-files-list" class="files-list">
+          <div class="empty-state">Nenhum arquivo compartilhado ainda.</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="study-main">
+      <div class="focus-overlay" id="focus-overlay">
+        <div class="focus-overlay-content">
+          <div class="focus-overlay-icon">🧠</div>
+          <h2>Modo Foco Ativo</h2>
+          <p>Chat bloqueado durante a sessão de foco. Mantenha a concentração!</p>
+          <div class="focus-overlay-timer" id="focus-overlay-timer">25:00</div>
+        </div>
+      </div>
+
+      
+      <div class="whiteboard-panel" id="whiteboard-panel">
+        <div class="wb-toolbar">
+          <div class="wb-tool-group">
+            <button class="wb-tool-btn active" data-tool="pen" onclick="App.wbSetTool('pen')" title="Caneta (P)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+            </button>
+            <button class="wb-tool-btn" data-tool="marker" onclick="App.wbSetTool('marker')" title="Marcador">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </button>
+            <button class="wb-tool-btn" data-tool="eraser" onclick="App.wbSetTool('eraser')" title="Borracha (E)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l11-11 6 6-6 6"/><path d="M6.0001 17.9999L18 6"/></svg>
+            </button>
+          </div>
+          <div class="wb-sep"></div>
+          <div class="wb-tool-group">
+            <button class="wb-tool-btn" data-tool="line" onclick="App.wbSetTool('line')" title="Linha">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="19" x2="19" y2="5"/></svg>
+            </button>
+            <button class="wb-tool-btn" data-tool="rect" onclick="App.wbSetTool('rect')" title="Retângulo">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            </button>
+            <button class="wb-tool-btn" data-tool="circle" onclick="App.wbSetTool('circle')" title="Círculo">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+            </button>
+            <button class="wb-tool-btn" data-tool="arrow" onclick="App.wbSetTool('arrow')" title="Seta">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="19" x2="19" y2="5"/><polyline points="9 5 19 5 19 15"/></svg>
+            </button>
+            <button class="wb-tool-btn" data-tool="text" onclick="App.wbSetTool('text')" title="Texto">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            </button>
+          </div>
+          <div class="wb-sep"></div>
+          <div class="wb-color-row">
+            <button class="wb-color-btn active" data-color="#e8a04a" style="background:#e8a04a" onclick="App.wbSetColor('#e8a04a')" title="Âmbar"></button>
+            <button class="wb-color-btn" data-color="#f0e8de" style="background:#f0e8de" onclick="App.wbSetColor('#f0e8de')" title="Creme"></button>
+            <button class="wb-color-btn" data-color="#7a9e7e" style="background:#7a9e7e" onclick="App.wbSetColor('#7a9e7e')" title="Verde"></button>
+            <button class="wb-color-btn" data-color="#c96a4a" style="background:#c96a4a" onclick="App.wbSetColor('#c96a4a')" title="Terracota"></button>
+            <button class="wb-color-btn" data-color="#a0c4e8" style="background:#a0c4e8" onclick="App.wbSetColor('#a0c4e8')" title="Azul"></button>
+            <button class="wb-color-btn" data-color="#c8a0e8" style="background:#c8a0e8" onclick="App.wbSetColor('#c8a0e8')" title="Lilás"></button>
+            <button class="wb-color-btn" data-color="#e8e84a" style="background:#e8e84a" onclick="App.wbSetColor('#e8e84a')" title="Amarelo"></button>
+            <button class="wb-color-btn" data-color="#ffffff" style="background:#fff;border-color:rgba(255,255,255,0.3)" onclick="App.wbSetColor('#ffffff')" title="Branco"></button>
+            <label class="wb-color-custom" title="Cor personalizada">
+              <input type="color" value="#e8a04a" oninput="App.wbSetColor(this.value)" />
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+            </label>
+          </div>
+          <div class="wb-sep"></div>
+          <span class="wb-label">Tam:</span>
+          <input type="range" class="wb-size-slider" min="1" max="24" value="4" oninput="App.wbSetSize(this.value)" />
+          <div class="wb-size-preview" id="wb-size-preview"></div>
+          <div class="wb-sep"></div>
+          <button class="wb-tool-btn" onclick="App.wbUndo()" title="Desfazer (Ctrl+Z)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+          </button>
+          <button class="wb-tool-btn" onclick="App.wbRedo()" title="Refazer (Ctrl+Y)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+          </button>
+          <button class="wb-tool-btn" onclick="App.wbDownload()" title="Salvar imagem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="wb-tool-btn danger" onclick="App.wbClear(true)" title="Limpar tudo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+          <div style="flex:1"></div>
+          <div class="wb-tool-indicator" id="wb-tool-indicator">Caneta</div>
+          <button class="wb-close-btn" onclick="App.toggleWhiteboard()" title="Fechar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <canvas id="wb-canvas" class="wb-canvas"
+          onmousedown="App.wbPointerDown(event)" onmousemove="App.wbPointerMove(event)"
+          onmouseup="App.wbPointerUp()" onmouseleave="App.wbPointerUp()"
+          ontouchstart="App.wbPointerDown(event)" ontouchmove="App.wbPointerMove(event)" ontouchend="App.wbPointerUp()">
+        </canvas>
+        <div class="wb-text-input-wrap" id="wb-text-input-wrap" style="display:none;position:absolute;">
+          <input id="wb-text-input" class="wb-text-input" type="text" placeholder="Digite e pressione Enter..." />
+        </div>
+      </div>
+
+      
+      <div class="flashcard-panel" id="flashcard-panel">
+        <div class="fc-header">
+          <div class="fc-title">Flashcards</div>
+          <div class="fc-tabs">
+            <button class="fc-tab active" data-tab="cards" onclick="App.switchFcTab('cards')">📇 Cards</button>
+            <button class="fc-tab" data-tab="quiz" onclick="App.switchFcTab('quiz')">🧠 Quiz</button>
+          </div>
+          <button class="fc-close" onclick="App.toggleFlashcards()">✕</button>
+        </div>
+        <div class="fc-body" id="fc-body"></div>
+      </div>
+
+      
+      <div class="doc-panel" id="doc-panel">
+        <div class="gdoc-header">
+          <div class="gdoc-header-left">
+            <svg class="gdoc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#e8a04a" opacity=".85"/>
+              <polyline points="14 2 14 8 20 8" stroke="#c8843a" stroke-width="1.5" fill="none"/>
+              <line x1="8" y1="13" x2="16" y2="13" stroke="white" stroke-width="1.2" opacity=".6"/>
+              <line x1="8" y1="16" x2="14" y2="16" stroke="white" stroke-width="1.2" opacity=".6"/>
+            </svg>
+            <input class="gdoc-title" id="gdoc-title" type="text" value="Documento sem título" spellcheck="false" />
+          </div>
+          <div class="gdoc-header-right">
+            <div class="gdoc-live-pill">
+              <span class="gdoc-live-dot"></span>
+              <span>Em tempo real</span>
+            </div>
+            <div class="gdoc-wordcount" id="doc-wordcount">0 palavras</div>
+            <button class="gdoc-close" onclick="App.toggleDoc()" title="Fechar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="gdoc-menubar">
+          <div class="gdoc-menu-item" tabindex="0">
+            Arquivo
+            <div class="gdoc-dropdown">
+              <button onclick="App.docExportTxt()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar .txt</button>
+              <button onclick="App.docCopy()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar texto</button>
+              <div class="gdoc-dropdown-sep"></div>
+              <button class="danger" onclick="App.docClear()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Limpar documento</button>
+            </div>
+          </div>
+          <div class="gdoc-menu-item" tabindex="0">
+            Editar
+            <div class="gdoc-dropdown">
+              <button onclick="App.docUndo()">Desfazer</button>
+              <button onclick="App.docRedo()">Refazer</button>
+              <div class="gdoc-dropdown-sep"></div>
+              <button onclick="App.docExecCmd('selectAll')">Selecionar tudo</button>
+            </div>
+          </div>
+          <div class="gdoc-menu-item" tabindex="0">
+            Formatar
+            <div class="gdoc-dropdown">
+              <button onclick="App.docToggleBold()">Negrito</button>
+              <button onclick="App.docToggleItalic()">Itálico</button>
+              <button onclick="App.docToggleUnderline()">Sublinhado</button>
+              <button onclick="App.docToggleStrike()">Tachado</button>
+              <div class="gdoc-dropdown-sep"></div>
+              <button onclick="App.docAlign('left')">Alinhar à esquerda</button>
+              <button onclick="App.docAlign('center')">Centralizar</button>
+              <button onclick="App.docAlign('right')">Alinhar à direita</button>
+              <button onclick="App.docAlign('full')">Justificar</button>
+            </div>
+          </div>
+          <div class="gdoc-menu-item" tabindex="0">
+            Inserir
+            <div class="gdoc-dropdown">
+              <button onclick="App.docToggleUL()">Lista com marcadores</button>
+              <button onclick="App.docToggleOL()">Lista numerada</button>
+              <div class="gdoc-dropdown-sep"></div>
+              <button onclick="App.docExecCmd('insertHorizontalRule')">Linha horizontal</button>
+            </div>
+          </div>
+        </div>
+        <div class="gdoc-toolbar">
+          <button class="gdt-btn" onclick="App.docUndo()" title="Desfazer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>
+          <button class="gdt-btn" onclick="App.docRedo()" title="Refazer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></button>
+          <div class="gdt-sep"></div>
+          <select class="gdt-select gdt-format" onchange="App.docExecCmd('formatBlock', this.value)" style="width: 120px;">
+            <option value="<p>">Texto normal</option>
+            <option value="<h1>">Título 1</option>
+            <option value="<h2>">Título 2</option>
+            <option value="<h3>">Título 3</option>
+            <option value="<h4>">Subtítulo</option>
+          </select>
+          <div class="gdt-sep"></div>
+          <select class="gdt-select gdt-font-family" onchange="App.docExecCmd('fontName', this.value)">
+            <option value="DM Sans">DM Sans</option><option value="Arial">Arial</option><option value="Roboto">Roboto</option>
+            <option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Montserrat">Montserrat</option>
+            <option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option>
+            <option value="Georgia">Georgia</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option>
+          </select>
+          <select class="gdt-select gdt-font-size" onchange="App.docSetFont(this.value)">
+            <option value="1">8pt</option><option value="2">10pt</option><option value="3" selected>12pt</option>
+            <option value="4">14pt</option><option value="5">18pt</option><option value="6">24pt</option><option value="7">36pt</option>
+          </select>
+          <div class="gdt-sep"></div>
+          <button class="gdt-btn gdt-bold" id="doc-btn-bold" onclick="App.docToggleBold()"><b>B</b></button>
+          <button class="gdt-btn gdt-italic" id="doc-btn-italic" onclick="App.docToggleItalic()"><i>I</i></button>
+          <button class="gdt-btn gdt-underline" id="doc-btn-underline" onclick="App.docToggleUnderline()"><u>U</u></button>
+          <button class="gdt-btn gdt-strike" id="doc-btn-strike" onclick="App.docToggleStrike()"><s>S</s></button>
+          <div class="gdt-sep"></div>
+          <div class="gdt-color-wrap">
+            <button class="gdt-btn gdt-color-trigger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5L3 9l9 12 9-12-2-6h-4"/><path d="M3 9h18"/></svg><div class="gdt-color-bar" id="doc-color-bar" style="background:#f0e8de"></div></button>
+            <div class="gdt-color-palette"><div class="gdt-palette-grid"><button style="background:#f0e8de" onclick="App.docPickColor('#f0e8de')"></button><button style="background:#e8a04a" onclick="App.docPickColor('#e8a04a')"></button><button style="background:#7a9e7e" onclick="App.docPickColor('#7a9e7e')"></button><button style="background:#c96a4a" onclick="App.docPickColor('#c96a4a')"></button><button style="background:#a0c4e8" onclick="App.docPickColor('#a0c4e8')"></button><button style="background:#c8a0e8" onclick="App.docPickColor('#c8a0e8')"></button><button style="background:#e8e84a" onclick="App.docPickColor('#e8e84a')"></button><button style="background:#ffffff" onclick="App.docPickColor('#ffffff')"></button></div><label class="gdt-custom-color"><input type="color" value="#f0e8de" oninput="App.docPickColor(this.value)" />Personalizada</label></div>
+          </div>
+          <div class="gdt-color-wrap">
+            <button class="gdt-btn gdt-color-trigger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><div class="gdt-color-bar" id="doc-hl-bar" style="background:rgba(232,232,80,0.6)"></div></button>
+            <div class="gdt-color-palette"><div class="gdt-palette-grid"><button style="background:rgba(232,232,80,0.55)" onclick="App.docPickHighlight('rgba(232,232,80,0.45)')"></button><button style="background:rgba(232,160,74,0.55)" onclick="App.docPickHighlight('rgba(232,160,74,0.45)')"></button><button style="background:rgba(122,158,126,0.55)" onclick="App.docPickHighlight('rgba(122,158,126,0.45)')"></button><button style="background:rgba(160,196,232,0.55)" onclick="App.docPickHighlight('rgba(160,196,232,0.45)')"></button></div><button class="gdt-hl-none" onclick="App.docClearHighlight()">Sem realce</button></div>
+          </div>
+          <div class="gdt-sep"></div>
+          <button class="gdt-btn" onclick="App.docToggleUL()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg></button>
+          <button class="gdt-btn" onclick="App.docToggleOL()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4M4 10h2"/></svg></button>
+          <div class="gdt-sep"></div>
+          <button class="gdt-btn" onclick="App.docAlign('left')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="14" y2="12"/><line x1="3" y1="18" x2="17" y2="18"/></svg></button>
+          <button class="gdt-btn" onclick="App.docAlign('center')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="5" y1="18" x2="19" y2="18"/></svg></button>
+          <button class="gdt-btn" onclick="App.docAlign('right')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="7" y1="18" x2="21" y2="18"/></svg></button>
+          <button class="gdt-btn" onclick="App.docAlign('full')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        </div>
+        <div class="gdoc-canvas">
+          <div class="gdoc-page" id="doc-editor" contenteditable="true" oninput="App.docInput()" onkeydown="App.docKeyDown(event)" onmouseup="App.docUpdateToolbarState()" onkeyup="App.docUpdateToolbarState()" spellcheck="false"></div>
+        </div>
+      </div>
+
+      
+      <div class="code-editor-panel" id="code-editor-panel">
+        <div class="code-header">
+          <div class="code-header-left">
+            <div class="code-icon"></div>
+            <span class="code-title">Editor Colaborativo</span>
+            <div class="code-language-selector">
+              <select id="code-language" class="code-lang-select" onchange="App.codeChangeLanguage(this.value)">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python (Simulado)</option>
+                <option value="csharp">C# (Simulado)</option>
+              </select>
+            </div>
+          </div>
+          <div class="code-header-right">
+            <div class="code-collab-status">
+              <span class="code-collab-dot"></span>
+              <span id="code-typing-status"></span>
+            </div>
+            <button class="code-copy-btn" onclick="App.codeCopy()" title="Copiar código">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+            <button class="code-clear-btn" onclick="App.codeClear()" title="Limpar editor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+            <button class="code-run-btn" onclick="App.codeRun()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Run
+            </button>
+            <button class="code-close-btn" onclick="App.toggleCodeEditor()">✕</button>
+          </div>
+        </div>
+
+        <div class="code-main-layout">
+          <div class="code-editor-container">
+            <div class="code-line-numbers" id="code-line-numbers"></div>
+            <div class="code-editor-wrapper">
+              <div class="code-editor-cursors" id="code-cursors-container"></div>
+              <textarea id="code-editor" class="code-editor" spellcheck="false" 
+                oninput="App.codeInput()" 
+                onkeydown="App.codeKeyDown(event)"
+                onscroll="App.codeSyncScroll()"
+                placeholder="// Escreva seu código aqui..."></textarea>
+            </div>
+          </div>
+
+          <div class="code-console">
+            <div class="code-console-header">
+              <span>📟 Console</span>
+              <button class="code-console-clear" onclick="App.codeClearConsole()">Limpar</button>
+            </div>
+            <div class="code-console-content" id="code-console-content">
+              <div class="code-console-line">> Pronto para executar código</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="pdf-reader-panel" id="pdf-reader-panel">
+        <div class="pdf-header">
+          <div class="pdf-header-left">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
+            <span class="pdf-title" id="pdf-filename">Leitor de PDF</span>
+          </div>
+          <div class="pdf-header-right">
+            <div class="pdf-nav" id="pdf-nav" style="display:none">
+              <button class="pdf-nav-btn" onclick="App.pdfPrevPage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <span class="pdf-page-info"><span id="pdf-current-page">1</span> / <span id="pdf-total-pages">1</span></span>
+              <button class="pdf-nav-btn" onclick="App.pdfNextPage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+              <div class="pdf-zoom-group">
+                <button class="pdf-nav-btn" onclick="App.pdfZoomOut()">−</button>
+                <span class="pdf-zoom-label" id="pdf-zoom-label">100%</span>
+                <button class="pdf-nav-btn" onclick="App.pdfZoomIn()">+</button>
+              </div>
+            <button class="btn-secondary small" id="btn-leader-mode" onclick="App.toggleLeaderMode()" title="Sincronizar minha tela com todos">👑 Siga o Líder</button>
+              <button class="pdf-change-btn" onclick="App.pdfChangePdf()" title="Trocar PDF">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Trocar
+              </button>
+            </div>
+            <button class="pdf-close-btn" onclick="App.togglePdfReader()">✕</button>
+          </div>
+        </div>
+        <div class="pdf-body" id="pdf-body">
+          <div class="pdf-drop-zone" id="pdf-drop-zone">
+            <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="App.pdfLoadFile(this.files[0])" />
+            <div class="pdf-drop-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg></div>
+            <p class="pdf-drop-title">Arraste um PDF aqui</p>
+            <p class="pdf-drop-sub">ou clique para selecionar</p>
+            <button class="btn-primary" onclick="document.getElementById('pdf-file-input').click()">Escolher PDF</button>
+          </div>
+          <div class="pdf-canvas-wrap" id="pdf-canvas-wrap" style="display:none">
+            <canvas id="pdf-canvas" class="pdf-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="translator-panel" id="translator-panel">
+        <div class="translator-header">
+          <div class="translator-header-left">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/></svg>
+            <span class="translator-title">Tradutor</span>
+          </div>
+          <button class="pdf-close-btn" onclick="App.toggleTranslator()">✕</button>
+        </div>
+        <div class="translator-body">
+          <div class="translator-lang-row">
+            <div class="translator-lang-block">
+              <select id="translator-from" class="translator-lang-select" onchange="App.translatorUpdateUrl()">
+                <option value="auto">Detectar idioma</option>
+                <option value="pt">Português</option>
+                <option value="en">Inglês</option>
+                <option value="es">Espanhol</option>
+                <option value="fr">Francês</option>
+                <option value="de">Alemão</option>
+                <option value="it">Italiano</option>
+                <option value="ja">Japonês</option>
+                <option value="ko">Coreano</option>
+                <option value="zh-CN">Chinês</option>
+                <option value="ru">Russo</option>
+                <option value="ar">Árabe</option>
+              </select>
+            </div>
+            <button class="translator-swap-btn" onclick="App.translatorSwap()" title="Inverter idiomas">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+            </button>
+            <div class="translator-lang-block">
+              <select id="translator-to" class="translator-lang-select" onchange="App.translatorUpdateUrl()">
+                <option value="en">Inglês</option>
+                <option value="pt" selected>Português</option>
+                <option value="es">Espanhol</option>
+                <option value="fr">Francês</option>
+                <option value="de">Alemão</option>
+                <option value="it">Italiano</option>
+                <option value="ja">Japonês</option>
+                <option value="ko">Coreano</option>
+                <option value="zh-CN">Chinês</option>
+                <option value="ru">Russo</option>
+                <option value="ar">Árabe</option>
+              </select>
+            </div>
+          </div>
+          <div class="translator-areas">
+            <div class="translator-area-wrap">
+              <textarea id="translator-input" class="translator-textarea" placeholder="Digite ou cole o texto para traduzir..." oninput="App.translatorOnInput()" rows="6"></textarea>
+              <div class="translator-area-footer">
+                <span class="translator-char-count" id="translator-char-count">0 caracteres</span>
+                <button class="translator-action-btn" onclick="App.translatorClear()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="translator-area-wrap result">
+              <div class="translator-result-box" id="translator-output">
+                <span class="translator-placeholder">A tradução aparecerá aqui...</span>
+              </div>
+              <div class="translator-area-footer">
+                <span class="translator-detected" id="translator-detected"></span>
+                <button class="translator-action-btn" onclick="App.translatorCopy()" id="translator-copy-btn" style="display:none">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copiar
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="translator-actions">
+            <button class="btn-primary" onclick="App.translatorTranslate()" style="width:100%;justify-content:center;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/></svg>
+              Traduzir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="messages-container" class="messages-container">
+        <div class="messages-welcome"><span class="welcome-icon">👋</span><p>Bem-vinda à sala!</p></div>
+      </div>
+
+      <div class="chat-input-area">
+        <button class="chat-attach" onclick="App.openImageInput()" title="Enviar imagem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
+        <button class="chat-attach" onclick="App.chatAskAI()" title="Perguntar à IA (ou digite /ia pergunta)" style="font-size:16px;">🤖</button>
+        <div class="chat-input-wrapper">
+          <textarea id="chat-input" class="chat-input" placeholder="Mensagem... (ou /ia pergunta para consultar IA)" rows="1" onkeydown="App.handleChatKey(event)" oninput="App.autoResize(this)"></textarea>
+        </div>
+        <button class="chat-send" onclick="App.sendMessage()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        </button>
+      </div>
+      <input type="file" id="image-input" accept="image/*" style="display:none" onchange="App.sendImage(this)" />
+    </main>
+
+    <div id="call-screen" class="call-screen">
+      <div class="call-screen-header">
+        <div class="call-screen-title"><span class="call-screen-dot"></span><span>Chamada em andamento</span></div>
+        <div class="call-controls">
+          <button class="call-ctrl-btn minimize-btn" id="btn-call-minimize" onclick="App.toggleCallMinimize()" title="Ir ao Chat (Minimizar)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg></button>
+          <button class="call-ctrl-btn" id="btn-call-wb" onclick="App.toggleCallWb()" title="Quadro Branco"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+          <button class="call-ctrl-btn" id="btn-toggle-mic" onclick="App.toggleMic()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+          <button class="call-ctrl-btn" id="btn-toggle-cam" onclick="App.toggleCam()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
+          <button class="call-ctrl-btn" id="btn-toggle-screen" onclick="App.toggleScreenShare()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+          <button class="call-ctrl-btn leave" onclick="App.toggleCall()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.5 16.5L20 20M3.35 3.35A17.93 17.93 0 001.18 7c-.26.5-.18 1.1.2 1.49l2 2a2 2 0 002.12.45c.4-.16.8-.3 1.2-.43a2 2 0 001.38-1.9V7a2 2 0 011.46-1.93 17.9 17.9 0 014.88-.07"/></svg></button>
+        </div>
+      </div>
+      <div id="video-grid" class="video-grid"></div>
+      <div class="call-wb-panel" id="call-wb-panel">
+        <div class="call-wb-toolbar">
+          <span class="cwb-title">✏️ Quadro Branco</span>
+          <div class="cwb-sep"></div>
+          <button class="cwb-tool-btn active" data-tool="pen" onclick="App.callWbSetTool('pen')">✏️</button>
+          <button class="cwb-tool-btn" data-tool="eraser" onclick="App.callWbSetTool('eraser')">🧹</button>
+          <div class="cwb-sep"></div>
+          <button class="cwb-color-btn active" data-color="#e8a04a" style="background:#e8a04a" onclick="App.callWbSetColor('#e8a04a')"></button>
+          <button class="cwb-color-btn" data-color="#f0e8de" style="background:#f0e8de" onclick="App.callWbSetColor('#f0e8de')"></button>
+          <button class="cwb-color-btn" data-color="#7a9e7e" style="background:#7a9e7e" onclick="App.callWbSetColor('#7a9e7e')"></button>
+          <button class="cwb-color-btn" data-color="#ffffff" style="background:#fff" onclick="App.callWbSetColor('#ffffff')"></button>
+          <div class="cwb-sep"></div>
+          <span class="cwb-label">Tam:</span>
+          <input type="range" class="cwb-size-slider" min="1" max="20" value="4" oninput="App.callWbSetSize(this.value)" />
+          <div class="cwb-sep"></div>
+          <button class="cwb-tool-btn" onclick="App.callWbUndo()">↩️</button>
+          <button class="cwb-tool-btn" onclick="App.callWbClear(true)">🗑️</button>
+          <div style="flex:1"></div>
+          <button class="cwb-tool-btn" onclick="App.toggleCallWb()">✕</button>
+        </div>
+        <canvas id="call-wb-canvas" class="call-wb-canvas"
+          onmousedown="App.callWbDown(event)" onmousemove="App.callWbMove(event)"
+          onmouseup="App.callWbUp()" onmouseleave="App.callWbUp()"
+          ontouchstart="App.callWbDown(event)" ontouchmove="App.callWbMove(event)" ontouchend="App.callWbUp()">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="private-chat-box" class="private-chat-box">
+  <div class="pchat-header">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div style="width:8px; height:8px; background:#60c080; border-radius:50%;"></div>
+      <strong id="pchat-name" style="font-size:14px; color:var(--text-0);">Chat</strong>
+    </div>
+    <button onclick="App.closePrivateChat()" style="background:none; border:none; color:var(--text-3); cursor:pointer;">✕</button>
+  </div>
+  <div id="pchat-messages" class="pchat-messages"></div>
+  <div class="pchat-input-area">
+    <input type="text" id="pchat-input" class="pchat-input" placeholder="Mensagem privada..." onkeydown="App.handlePrivateChatKey(event)" />
+    <button class="chat-send" onclick="App.sendPrivateMessage()" style="width:32px; height:32px; padding:0; flex-shrink:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="screen-dashboard" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn active" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="App.showDashboard()">📊 Dashboard</button>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & Emergências</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+        </div>
+      </div>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="dash-avatar">A</div>
+        <span id="dash-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+  <main class="dashboard-main">
+    <div class="dash-header"><h1>Seu Progresso</h1><p id="dash-greeting">Veja como você está evoluindo.</p></div>
+    <div class="stats-grid">
+      <div class="stat-card accent"><div class="stat-icon">⏱</div><div class="stat-value" id="stat-total-hours">—</div><div class="stat-label">Horas totais</div></div>
+      <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="stat-today">—</div><div class="stat-label">Minutos hoje</div></div>
+      <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="stat-streak">—</div><div class="stat-label">Dias seguidos</div></div>
+      <div class="stat-card"><div class="stat-icon">🧩</div><div class="stat-value" id="stat-sessions">—</div><div class="stat-label">Sessões totais</div></div>
+    </div>
+    <div class="chart-section"><div class="section-title">Últimos 7 dias</div><div class="bar-chart" id="bar-chart"></div></div>
+    <div class="chart-section"><div class="section-title">📊 Horas por Matéria</div><div id="subject-stats" class="subject-stats-list"><div class="empty-state">Nenhum dado ainda. Estude e categorize suas sessões!</div></div></div>
+    <div class="sessions-section"><div class="section-title">Sessões recentes</div><div id="sessions-list" class="sessions-list"><div class="empty-state">Nenhuma sessão registrada ainda.</div></div></div>
+  </main>
+</div>
+
+<div id="screen-calendar" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn active" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="cal-avatar">A</div>
+        <span id="cal-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+  <main class="calendar-main">
+    <div class="cal-layout">
+      <div class="cal-left">
+        <div class="cal-nav"><button class="cal-arrow" onclick="App.calPrev()">‹</button><h2 id="cal-month-title">Abril 2026</h2><button class="cal-arrow" onclick="App.calNext()">›</button></div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="cal-right">
+        <div class="cal-events-header"><span id="cal-selected-date">Selecione um dia</span><button class="btn-secondary small" onclick="App.openAddEvent()">+ Evento</button></div>
+        <div id="cal-events-list" class="cal-events-list"><div class="empty-state">Clique em um dia para ver eventos.</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="screen-profile" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn active" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="prof-avatar">A</div>
+        <span id="prof-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+  <main class="profile-main">
+    <div class="profile-hero">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-lg" id="profile-avatar-lg" onclick="App.toggleEmojiPicker()"><div class="profile-avatar-edit">✏️</div></div>
+        <div class="profile-avatar-emoji-picker" id="profile-emoji-picker"></div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name" id="profile-name">—</div>
+        <div class="profile-bio-display" id="profile-bio-display" onclick="App.toggleBioEdit()">Clique para adicionar uma bio...</div>
+        <textarea class="profile-bio-edit" id="profile-bio-edit" rows="2" maxlength="200" placeholder="Sua bio..."></textarea>
+        <div class="profile-since" id="profile-since"></div>
+      </div>
+      <div class="profile-theme-toggle"><button class="theme-toggle-btn" onclick="App.toggleTheme()"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span><span class="theme-label">Modo Escuro</span></button></div>
+    </div>
+    <div class="profile-stats-row">
+      <div class="stat-card accent"><div class="stat-icon">⏱</div><div class="stat-value" id="pstat-hours">—</div><div class="stat-label">Horas totais</div></div>
+      <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="pstat-today">—</div><div class="stat-label">Min. hoje</div></div>
+      <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="pstat-streak">—</div><div class="stat-label">Sequência</div></div>
+      <div class="stat-card"><div class="stat-icon">🧩</div><div class="stat-value" id="pstat-sessions">—</div><div class="stat-label">Sessões</div></div>
+    </div>
+    <div class="profile-sections">
+      <div><div class="profile-section-title">🏆 Conquistas</div><div class="badges-list" id="profile-badges-list"><div class="empty-state">Complete ações para desbloquear conquistas!</div></div></div>
+      <div>
+        <div class="profile-section-title">👥 Amigos</div>
+
+        
+        <div class="friend-myid-box">
+          <div class="friend-myid-label">Meu ID de amigo</div>
+          <div class="friend-myid-row">
+            <span class="friend-myid-code" id="my-friend-id">—</span>
+            <button class="friend-copy-btn" onclick="App.copyFriendId()" title="Copiar ID">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copiar
+            </button>
+          </div>
+          <div class="friend-myid-hint">Compartilhe este ID com seus colegas para se conectarem</div>
+        </div>
+
+        
+        <div class="add-friend-row">
+          <input id="friend-input" class="field-input" type="text" placeholder="Cole o ID do amigo aqui..." onkeydown="if(event.key==='Enter') App.addFriend()" maxlength="12" style="font-family:var(--font-mono);letter-spacing:.05em;" />
+          <button class="btn-secondary" onclick="App.addFriend()">Enviar convite</button>
+        </div>
+
+        
+        <div id="friend-invites-section" style="display:none">
+          <div class="friend-invites-label">📬 Convites recebidos</div>
+          <div id="friend-invites-list"></div>
+        </div>
+
+        
+        <div class="friends-list" id="friends-list"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="screen-ranking" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn active" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="rank-avatar">A</div>
+        <span id="rank-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+  <main class="ranking-main">
+    <h1>Ranking</h1>
+    <p class="ranking-subtitle">Compare seu desempenho com seus amigos.</p>
+    <div class="ranking-tabs">
+      <button class="rank-tab active" data-tab="week" onclick="App.switchRankTab('week')">Esta semana</button>
+      <button class="rank-tab" data-tab="total" onclick="App.switchRankTab('total')">Total</button>
+      <button class="rank-tab" data-tab="streak" onclick="App.switchRankTab('streak')">Sequência</button>
+    </div>
+    <div class="ranking-podium" id="ranking-podium"></div>
+    <div class="ranking-list" id="ranking-list"></div>
+  </main>
+</div>
+
+<div id="screen-forum" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn active" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="forum-avatar">A</div>
+        <span id="forum-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+  <main class="forum-main">
+    <div id="forum-view-list" class="forum-view active">
+      <div class="forum-hero"><div><h1 class="forum-title">Fórum de Dúvidas</h1><p class="forum-subtitle">Tire dúvidas, compartilhe conhecimento e ajude outros alunos.</p></div><button class="btn-primary" onclick="App.forumShowNew()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Pergunta</button></div>
+      <div class="forum-controls"><div class="forum-search-bar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="forum-search" placeholder="Buscar perguntas..." oninput="App.forumFilter(this.value)" /></div><div class="forum-sort-tabs"><button class="forum-tab active" data-sort="recent" onclick="App.forumSort('recent',this)">Recentes</button><button class="forum-tab" data-sort="top" onclick="App.forumSort('top',this)">Mais votadas</button><button class="forum-tab" data-sort="unanswered" onclick="App.forumSort('unanswered',this)">Sem resposta</button></div></div>
+      <div id="forum-list" class="forum-list"><div class="empty-state">Nenhuma pergunta ainda. Seja o primeiro!</div></div>
+    </div>
+    <div id="forum-view-new" class="forum-view"><button class="forum-back-btn" onclick="App.forumShowList()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Voltar ao Fórum</button><div class="forum-form-card"><h2 class="forum-form-title">Nova Pergunta</h2><div class="field-group"><label class="field-label">Título da pergunta</label><input id="forum-q-title" class="field-input" type="text" placeholder="Resumo claro da sua dúvida..." maxlength="120" /></div><div class="field-group"><label class="field-label">Detalhes</label><textarea id="forum-q-body" class="field-input forum-textarea" rows="5" placeholder="Descreva sua dúvida com mais detalhes..."></textarea></div><div class="field-group"><label class="field-label">Tags (opcional)</label><input id="forum-q-tags" class="field-input" type="text" placeholder="ex: matemática, cálculo, álgebra" maxlength="80" /></div><div class="forum-form-actions"><button class="btn-secondary" onclick="App.forumShowList()">Cancelar</button><button class="btn-primary" onclick="App.forumSubmitQuestion()">Publicar Pergunta</button></div></div></div>
+    <div id="forum-view-detail" class="forum-view"><button class="forum-back-btn" onclick="App.forumShowList()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Voltar ao Fórum</button><div id="forum-detail-content"></div></div>
+  </main>
+</div>
+
+<div id="screen-tarefas" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn active" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <button onclick="LibrasDictionary.abrir()">🤟 Tradutor de Libras</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="tarefas-avatar">A</div>
+        <span id="tarefas-username">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+
+  
+  <div class="tarefas-hero">
+    <div>
+      <h1 class="tarefas-title">Tarefas</h1>
+      <p class="tarefas-subtitle">Suas tarefas pessoais e o quadro compartilhado da turma.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      
+      <div class="tarefas-hero-right" id="tarefas-ring-wrap">
+        <div class="tarefas-progress-ring-wrap">
+          <svg class="tarefas-ring" width="64" height="64" viewBox="0 0 64 64">
+            <circle class="ring-bg" cx="32" cy="32" r="26" fill="none" stroke-width="5"/>
+            <circle class="ring-fg" id="tarefas-ring-fg" cx="32" cy="32" r="26" fill="none" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="163.4" stroke-linecap="round" transform="rotate(-90 32 32)"/>
+          </svg>
+          <span class="tarefas-ring-pct" id="tarefas-ring-pct">0%</span>
+        </div>
+        <div class="tarefas-summary" id="tarefas-summary">0 de 0 concluídas</div>
+      </div>
+      
+      <div class="tarefas-mode-switch">
+        <button class="tarefas-mode-btn active" id="btn-mode-checklist" onclick="App.tarefasSwitchMode('checklist')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Minhas Tarefas
+        </button>
+        <button class="tarefas-mode-btn" id="btn-mode-kanban" onclick="App.tarefasSwitchMode('kanban')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+          Quadro Compartilhado
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="tarefas-checklist-mode">
+    <div class="tarefas-controls">
+      <div class="tarefas-filter-tabs">
+        <button class="tarefas-tab active" data-filter="all" onclick="App.tarefasSetFilter('all',this)">Todas</button>
+        <button class="tarefas-tab" data-filter="open" onclick="App.tarefasSetFilter('open',this)">Abertas</button>
+        <button class="tarefas-tab" data-filter="done" onclick="App.tarefasSetFilter('done',this)">Concluídas</button>
+        <button class="tarefas-tab" data-filter="mine" onclick="App.tarefasSetFilter('mine',this)">Minhas</button>
+      </div>
+      <div class="tarefas-right-controls">
+        <div class="tarefas-search-bar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="tarefas-search" placeholder="Buscar tarefa..." oninput="App.tarefasSearch(this.value)" style="flex:1;background:none;border:none;outline:none;color:var(--text-1);font-size:13.5px;font-family:var(--font-body);" />
+        </div>
+        <select class="tarefas-sort-select" onchange="App.tarefasSetSort(this.value)">
+          <option value="newest">Mais recentes</option>
+          <option value="oldest">Mais antigas</option>
+          <option value="priority">Prioridade</option>
+          <option value="alpha">A–Z</option>
+        </select>
+      </div>
+    </div>
+    <div class="tarefas-add-row">
+      <div class="tarefas-add-card" id="tarefas-add-collapsed" onclick="App.tarefasOpenAdd()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Adicionar tarefa...</span>
+      </div>
+      <div class="tarefas-add-form" id="tarefas-add-form" style="display:none">
+        <div>
+          <input id="tarefas-new-title" class="tarefas-add-input" type="text" placeholder="Nome da tarefa..." onkeydown="App.tarefasAddKey(event)" />
+          <div class="tarefas-add-meta-row">
+            <textarea id="tarefas-new-desc" class="tarefas-add-desc" rows="2" placeholder="Descrição opcional..."></textarea>
+            <div class="tarefas-add-options">
+              <label class="tarefas-option-label">Prioridade</label>
+              <select id="tarefas-new-priority" class="tarefas-sort-select">
+                <option value="normal">Normal</option>
+                <option value="high">Alta</option>
+                <option value="low">Baixa</option>
+              </select>
+            </div>
+          </div>
+          <div class="tarefas-add-actions">
+            <button class="btn-secondary small" onclick="App.tarefasCloseAdd()">Cancelar</button>
+            <button class="btn-primary small" onclick="App.tarefasSubmit()">Adicionar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tarefas-list" class="tarefas-list"></div>
+  </div>
+
+  
+  <div id="tarefas-kanban-mode" style="display:none">
+    <div class="kanban-toolbar">
+      <button class="kanban-add-btn" onclick="App.kanbanOpenAdd()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Card
+      </button>
+      <span class="kanban-info-label">Arraste os cards entre colunas para atualizar o status</span>
+    </div>
+    <div class="kanban-board" id="kanban-board">
+      <div class="kanban-col" data-col="todo" ondragover="App.kanbanDragOver(event)" ondrop="App.kanbanDrop(event,'todo')" ondragleave="App.kanbanDragLeave(event)">
+        <div class="kanban-col-header">
+          <span class="kanban-col-dot" style="background:#e8a04a"></span>
+          <span class="kanban-col-title">A Fazer</span>
+          <span class="kanban-col-count" id="kanban-count-todo">0</span>
+        </div>
+        <div class="kanban-cards" id="kanban-col-todo"></div>
+        <button class="kanban-inline-add" onclick="App.kanbanOpenAdd('todo')">+ Adicionar card</button>
+      </div>
+      <div class="kanban-col" data-col="doing" ondragover="App.kanbanDragOver(event)" ondrop="App.kanbanDrop(event,'doing')" ondragleave="App.kanbanDragLeave(event)">
+        <div class="kanban-col-header">
+          <span class="kanban-col-dot" style="background:#7aaadd"></span>
+          <span class="kanban-col-title">Em Andamento</span>
+          <span class="kanban-col-count" id="kanban-count-doing">0</span>
+        </div>
+        <div class="kanban-cards" id="kanban-col-doing"></div>
+        <button class="kanban-inline-add" onclick="App.kanbanOpenAdd('doing')">+ Adicionar card</button>
+      </div>
+      <div class="kanban-col" data-col="review" ondragover="App.kanbanDragOver(event)" ondrop="App.kanbanDrop(event,'review')" ondragleave="App.kanbanDragLeave(event)">
+        <div class="kanban-col-header">
+          <span class="kanban-col-dot" style="background:#c97be0"></span>
+          <span class="kanban-col-title">Revisão</span>
+          <span class="kanban-col-count" id="kanban-count-review">0</span>
+        </div>
+        <div class="kanban-cards" id="kanban-col-review"></div>
+        <button class="kanban-inline-add" onclick="App.kanbanOpenAdd('review')">+ Adicionar card</button>
+      </div>
+      <div class="kanban-col" data-col="done" ondragover="App.kanbanDragOver(event)" ondrop="App.kanbanDrop(event,'done')" ondragleave="App.kanbanDragLeave(event)">
+        <div class="kanban-col-header">
+          <span class="kanban-col-dot" style="background:#7abc8a"></span>
+          <span class="kanban-col-title">Concluído</span>
+          <span class="kanban-col-count" id="kanban-count-done">0</span>
+        </div>
+        <div class="kanban-cards" id="kanban-col-done"></div>
+        <button class="kanban-inline-add" onclick="App.kanbanOpenAdd('done')">+ Adicionar card</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="tarefas-edit-overlay" class="tarefas-edit-overlay" onclick="App.tarefasCloseEdit()">
+    <div class="tarefas-edit-modal" onclick="event.stopPropagation()">
+      <div class="tarefas-edit-header">
+        <h3 class="tarefas-edit-title-label">Editar Tarefa</h3>
+        <button class="tarefas-edit-close" onclick="App.tarefasCloseEdit()">✕</button>
+      </div>
+      <div class="field-group"><label class="field-label">Título</label><input id="tarefas-edit-title" class="field-input" type="text" maxlength="120" /></div>
+      <div class="field-group"><label class="field-label">Descrição</label><textarea id="tarefas-edit-desc" class="field-input forum-textarea" rows="3"></textarea></div>
+      <div class="field-group"><label class="field-label">Prioridade</label><select id="tarefas-edit-priority" class="field-input"><option value="normal">Normal</option><option value="high">Alta</option><option value="low">Baixa</option></select></div>
+      <div class="tarefas-edit-actions">
+        <button class="btn-secondary" onclick="App.tarefasCloseEdit()">Cancelar</button>
+        <button class="btn-primary" onclick="App.tarefasSaveEdit()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="kanban-modal-overlay" class="tarefas-edit-overlay" onclick="App.kanbanCloseModal()">
+    <div class="tarefas-edit-modal" onclick="event.stopPropagation()" style="max-width:480px">
+      <div class="tarefas-edit-header">
+        <h3 class="tarefas-edit-title-label" id="kanban-modal-title">Novo Card</h3>
+        <button class="tarefas-edit-close" onclick="App.kanbanCloseModal()">✕</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Título</label>
+        <input id="kanban-card-title" class="field-input" type="text" maxlength="120" placeholder="Nome do card..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Descrição</label>
+        <textarea id="kanban-card-desc" class="field-input forum-textarea" rows="3" placeholder="Detalhes, links, contexto..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field-group">
+          <label class="field-label">Coluna</label>
+          <select id="kanban-card-col" class="field-input">
+            <option value="todo">A Fazer</option>
+            <option value="doing">Em Andamento</option>
+            <option value="review">Revisão</option>
+            <option value="done">Concluído</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Prioridade</label>
+          <select id="kanban-card-priority" class="field-input">
+            <option value="normal">Normal</option>
+            <option value="high">Alta ↑</option>
+            <option value="low">Baixa ↓</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Responsável (opcional)</label>
+        <input id="kanban-card-assignee" class="field-input" type="text" maxlength="60" placeholder="@nome do colega..." />
+      </div>
+      <div class="tarefas-edit-actions">
+        <button class="btn-secondary" onclick="App.kanbanCloseModal()">Cancelar</button>
+        <button class="btn-primary" onclick="App.kanbanSaveCard()">Salvar Card</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay" onclick="App.closeModal()"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="App.closeModal()">✕</button><div id="modal-content"></div></div></div>
+<div id="toast" class="toast"></div>
+<div id="conn-status" class="conn-status" style="display:none"><span class="conn-dot"></span><span>Reconectando...</span></div>
+<div id="pin-board" class="pin-board">
+  <div class="pin-board-header"><span>📌 Mural de Ideias</span><div style="display:flex;gap:10px;"><button class="btn-secondary small" onclick="App.clearPins()">Limpar Página</button><button class="pin-board-close" onclick="App.togglePinBoard()">✕</button></div></div>
+  <div class="pin-toolbar">
+    <div class="pin-color-picker" id="pin-color-picker">
+      <div class="pin-color-opt active" style="background:#fff787" onclick="App.selectPinColor('#fff787', this)"></div>
+      <div class="pin-color-opt" style="background:#b9e9ff" onclick="App.selectPinColor('#b9e9ff', this)"></div>
+      <div class="pin-color-opt" style="background:#ffc4d0" onclick="App.selectPinColor('#ffc4d0', this)"></div>
+      <div class="pin-color-opt" style="background:#c6f1d6" onclick="App.selectPinColor('#c6f1d6', this)"></div>
+      <div class="pin-color-opt" style="background:#e2c6ff" onclick="App.selectPinColor('#e2c6ff', this)"></div>
+    </div>
+    <span style="font-size:12px;color:var(--text-3);">Clique em uma cor e depois no mural para colar uma ideia</span>
+  </div>
+  <div class="pins-container" id="pins-container" onclick="App.onMuralClick(event)"><div class="pins-canvas" id="pins-canvas"></div></div>
+</div>
+<div id="mindmap-board" class="pin-board">
+  <div class="pin-board-header"><span>🧠 Mapa Mental</span><div style="display:flex;gap:10px;"><button class="btn-secondary small" onclick="App.clearNodes()">Limpar Mapa</button><button class="pin-board-close" onclick="App.toggleMindMap()">✕</button></div></div>
+  <div class="pin-toolbar">
+    <div class="pin-color-picker" style="border-right: 1px solid var(--border); padding-right: 15px;">
+      <div class="pin-color-opt active" style="background:#fff787" onclick="App.selectNodeColor('#fff787', this)"></div>
+      <div class="pin-color-opt" style="background:#b9e9ff" onclick="App.selectNodeColor('#b9e9ff', this)"></div>
+      <div class="pin-color-opt" style="background:#ffc4d0" onclick="App.selectNodeColor('#ffc4d0', this)"></div>
+      <div class="pin-color-opt" style="background:#c6f1d6" onclick="App.selectNodeColor('#c6f1d6', this)"></div>
+      <div class="pin-color-opt" style="background:#e2c6ff" onclick="App.selectNodeColor('#e2c6ff', this)"></div>
+    </div>
+    <div class="pin-color-picker" id="node-shape-picker" style="gap:5px;">
+      <button class="btn-secondary small active" onclick="App.setNodeShape('capsule', this)" title="Cápsula">round</button>
+      <button class="btn-secondary small" onclick="App.setNodeShape('rect', this)" title="Retângulo">█</button>
+      <button class="btn-secondary small" onclick="App.setNodeShape('circle', this)" title="Círculo">●</button>
+      <button class="btn-secondary small" onclick="App.setNodeShape('diamond', this)" title="Losango">◆</button>
+    </div>
+    <button class="btn-primary small" id="btn-node-link-mode" onclick="App.toggleNodeLinkMode()">
+      🔗 Ligar Balões
+    </button>
+    <span style="font-size:11px;color:var(--text-3);">Clique duplo para escrever. Arraste para mover.</span>
+  </div>
+  <div class="pins-container" id="nodes-container" onclick="App.onMindMapClick(event)">
+    <div class="pins-canvas" id="nodes-canvas">
+      <svg id="nodes-svg" class="nodes-svg" width="5000" height="5000">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="rgba(232,160,74,1)" />
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div id="screen-turmas" class="screen">
+    <header class="app-header">
+    <div class="header-brand"><span class="logo-icon small">⬡</span><span class="logo-text small">Lorac</span></div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="App.showRoomsScreen()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Salas</button>
+      <button class="nav-btn" onclick="App.showDashboard()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Dashboard</button>
+      <button class="nav-btn" onclick="App.showCalendar()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
+      <button class="nav-btn" onclick="App.showRanking()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Ranking</button>
+      <button class="nav-btn" onclick="App.showProfile()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+      <button class="nav-btn" onclick="App.showForum()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Fórum</button>
+      <button class="nav-btn active" id="nav-turmas" onclick="App.showTurmas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Turmas</button>
+      <button class="nav-btn" onclick="App.showTarefas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarefas</button>
+      <button class="nav-btn" onclick="ModoDuelo.abrir()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Duelo</button>
+      <button class="nav-btn" onclick="App.openRecentChatsModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+      <div class="mt-nav-dropdown">
+        <button class="nav-btn" onclick="this.nextElementSibling.classList.toggle('show')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Explorar
+        </button>
+        <div class="mt-dropdown-content">
+          <div class="mt-dropdown-label">Sociedade & Geografia</div>
+          <button onclick="MapasTimeline.abrir('world')">🌍 Mapa Mundi</button>
+          <button onclick="MapasTimeline.abrir('brazil')">🇧🇷 Brasil e Biomas</button>
+          <button onclick="MapasTimeline.abrir('timeline')">⏳ Linha do Tempo</button>
+          <button onclick="DebateIA.abrir()">⚔️ Debate com IA</button>
+          <button onclick="GaleriaArte.abrir()">🎨 Galeria de Arte</button>
+          <button onclick="GeologiaTectonica.abrir()">🌋 Placas Tectônicas</button>
+          <button onclick="EducacaoFinanceira.abrir()">💰 Finanças & Mercado</button>
+          <button onclick="BancoCentralVirtual.abrir()">🏦 Banco Central Virtual</button>
+          <button onclick="BibliotecaVirtual.abrir()">📚 Biblioteca Virtual</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Tecnologia & Hardware</div>
+          <button onclick="PCBuilderMundo.abrir()">🖥️ Montagem de PC</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Ciências & Laboratórios</div>
+          <button onclick="event.stopPropagation();abrirQuimica('laboratorio')">⚗️ Lab de Reações</button>
+          <button onclick="event.stopPropagation();abrirQuimica('moleculas')">🧬 Moléculas 3D</button>
+          <button onclick="event.stopPropagation();abrirQuimica('builder')">🔬 Construtor 3D</button>
+          <button onclick="GeneticaDNA.abrir()">🧬 Genética & DNA</button>
+          <button onclick="CienciasVida.abrir()">🌿 Ciências da Vida</button>
+          <div class="mt-dropdown-sep"></div>
+          <div class="mt-dropdown-label">Saúde & IA</div>
+          <button onclick="PrimeirosSocorros.abrir()">🚑 Primeiros Socorros</button>
+          <button onclick="App.openAIHelp()">🤖 Ajuda IA</button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div class="header-user" style="cursor:pointer;" onclick="App.showProfile()">
+        <div class="user-avatar" id="turmas-header-avatar">A</div>
+        <span id="turmas-header-name">Aluno</span>
+      </div>
+      <button class="btn-logout" onclick="App.logout()" title="Sair da conta" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,80,80,0.07);color:#e07060;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-left:4px;" onmouseover="this.style.background='rgba(255,80,80,0.18)';this.style.borderColor='rgba(255,100,100,0.45)'" onmouseout="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,100,100,0.2)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+      </button>
+    </div>
+  </header>
+
+  <main style="max-width:900px;margin:0 auto;padding:40px 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:36px;color:var(--text-0);margin-bottom:6px">Turmas</h1>
+        <p id="turmas-subtitle" style="color:var(--text-2);font-size:15px"></p>
+      </div>
+      <div id="turmas-actions" style="display:flex;gap:10px"></div>
+    </div>
+
+    <div id="turmas-list" style="display:flex;flex-direction:column;gap:20px"></div>
+  </main>
+
+  
+  <div id="modal-criar-turma" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center">
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:18px;padding:32px;width:100%;max-width:440px;position:relative">
+      <button onclick="App.fecharModalTurma()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-2);cursor:pointer;font-size:20px">✕</button>
+      <h3 style="font-family:var(--font-display);font-size:24px;color:var(--text-0);margin-bottom:20px">Nova Turma</h3>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:block;margin-bottom:6px">Nome da turma</label>
+        <input id="nova-turma-nome" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text-0);outline:none" placeholder="Ex.: Matemática - 3º Ano" />
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:block;margin-bottom:6px">Descrição (opcional)</label>
+        <textarea id="nova-turma-desc" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text-0);outline:none;resize:vertical;min-height:70px" placeholder="Sobre a turma..."></textarea>
+      </div>
+      <button onclick="App.criarTurma()" style="width:100%;padding:13px;background:var(--accent);color:var(--bg-0);border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Criar Turma</button>
+    </div>
+  </div>
+
+  
+  <div id="modal-entrar-turma" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center">
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:18px;padding:32px;width:100%;max-width:400px;position:relative">
+      <button onclick="App.fecharModalEntrar()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-2);cursor:pointer;font-size:20px">✕</button>
+      <h3 style="font-family:var(--font-display);font-size:24px;color:var(--text-0);margin-bottom:8px">Entrar em Turma</h3>
+      <p style="color:var(--text-2);font-size:14px;margin-bottom:20px">Digite o código fornecido pelo professor.</p>
+      <input id="codigo-turma" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:13px 14px;font-size:18px;font-weight:600;color:var(--accent);outline:none;text-align:center;letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px" placeholder="XXXXXX" maxlength="6" />
+      <button onclick="App.entrarTurma()" style="width:100%;padding:13px;background:var(--accent);color:var(--bg-0);border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Entrar na Turma</button>
+      <div id="entrar-turma-err" style="color:#e07060;font-size:13px;margin-top:10px;text-align:center;display:none"></div>
+    </div>
+  </div>
+
+  
+  <div id="modal-add-video" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center">
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:18px;padding:32px;width:100%;max-width:480px;position:relative">
+      <button onclick="App.fecharModalVideo()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-2);cursor:pointer;font-size:20px">✕</button>
+      <h3 style="font-family:var(--font-display);font-size:24px;color:var(--text-0);margin-bottom:20px">Adicionar Vídeo-Aula</h3>
+
+      
+      <div style="display:flex;gap:8px;margin-bottom:20px;background:var(--bg-3);border-radius:10px;padding:4px">
+        <button id="tab-link" onclick="App.setVideoTab('link')" style="flex:1;padding:9px;border:none;border-radius:8px;background:var(--accent);color:var(--bg-0);font-weight:600;font-size:13px;cursor:pointer">🔗 Link (YouTube etc)</button>
+        <button id="tab-upload" onclick="App.setVideoTab('upload')" style="flex:1;padding:9px;border:none;border-radius:8px;background:transparent;color:var(--text-2);font-size:13px;cursor:pointer">📁 Upload de arquivo</button>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:block;margin-bottom:6px">Título</label>
+        <input id="video-titulo" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text-0);outline:none" placeholder="Título da aula" />
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:block;margin-bottom:6px">Descrição (opcional)</label>
+        <input id="video-desc" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text-0);outline:none" placeholder="Sobre este vídeo..." />
+      </div>
+
+      <div id="video-link-field" style="margin-bottom:20px">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:block;margin-bottom:6px">URL do vídeo</label>
+        <input id="video-url" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text-0);outline:none" placeholder="https://youtube.com/watch?v=..." />
+      </div>
+      <div id="video-upload-field" style="display:none;margin-bottom:20px">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:block;margin-bottom:6px">Arquivo de vídeo</label>
+        <input type="file" id="video-file" accept="video/*" style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--text-1);outline:none" />
+      </div>
+
+      <button id="btn-salvar-video" onclick="App.salvarVideo()" style="width:100%;padding:13px;background:var(--accent);color:var(--bg-0);border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">Publicar Vídeo-Aula</button>
+      <div id="video-err" style="color:#e07060;font-size:13px;margin-top:10px;text-align:center;display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/app.js?v=3"></script>
+<script src="/static/js/exercicio-system.js?v=3"></script>
+<script src="/static/js/materia-modal.js?v=3"></script>
+<script src="/static/js/advanced-features.js?v=3"></script>
+
+<script src="/static/js/foco-bloqueador.js?v=3"></script>
+<script src="/static/js/banco-questoes-global.js?v=3"></script>
+<script src="/static/js/compartilhar-exercicio.js?v=3"></script>
+<script src="/static/js/aluno-turma-dashboard.js?v=3"></script>
+<script src="/static/js/boletim.js?v=1"></script>
+<script src="/static/js/ferramentas-ia.js?v=3"></script>
+<script src="/static/js/debate-ia.js?v=3"></script>
+<script src="/static/js/ensina-aprende.js?v=3"></script>
+<script src="/static/js/dicionario-pdf.js?v=3"></script>
+<script src="/static/js/plano-estudos.js?v=3"></script>
+<script src="/static/js/ferramentas-extras.js?v=3"></script>
+<script src="/static/js/tabela-periodica.js?v=3"></script>
+<script src="/static/js/qrcode-revisao.js?v=3"></script>
+<script src="/static/js/chamada.js?v=3"></script>
+<script src="/static/js/anatomia-pro.js?v=3"></script>
+<script src="/static/js/ciencias-vida.js?v=3"></script>
+<script src="/static/js/modo-duelo.js?v=3"></script>
+<script src="/static/js/mapas-timeline.js?v=3"></script>
+<script src="/static/js/quimica-visual.js?v=1"></script>
+<script src="/static/js/fisica-visual.js?v=1"></script>
+<script src="/static/js/geometria-3d.js?v=1"></script>
+<script src="/static/js/fisica-interativa.js?v=1"></script>
+<script src="/static/js/plotador-funcoes.js?v=1"></script>
+<script src="/static/js/geologia-tectonica.js?v=1"></script>
+<script src="/static/js/educacao-financeira.js?v=1"></script>
+<script src="/static/js/banco-central-virtual.js?v=1"></script>
+<script src="/static/js/galeria-arte.js?v=1"></script>
+<script src="/static/js/anotacoes-pdf.js?v=1"></script>
+
+  <script src="/static/js/genetica-dna.js"></script>
+<script src="/static/js/linha-do-tempo-brasil.js?v=1"></script>
+ <script src="/static/js/astronomia-3d.js?v=1"></script>
+ <script src="/static/js/viagem-tempo.js?v=1"></script>
+ <script src="/static/js/clube-livro.js?v=1"></script>
+ <script src="/static/js/digital-reader.js?v=1"></script>
+ <script src="/static/js/pc-builder.js?v=1"></script>
+ <script src="/static/js/algoritmos-visual.js?v=1"></script>
+ <script src="/static/js/libras-dictionary.js?v=1"></script>
+
+<div id="ps-overlay" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+  animation: psFadeIn 0.2s ease;
+">
+  <div style="
+    position: relative;
+    width: min(1000px, calc(100vw - 40px));
+    height: calc(100vh - 40px);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    border: 1px solid rgba(192, 57, 43, 0.3);
+  ">
+    <button onclick="PrimeirosSocorros.fechar()" style="
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 10;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(15,13,10,0.9);
+      border: 1px solid rgba(255,220,170,0.15);
+      color: #b8a89a;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      line-height: 1;
+    " onmouseover="this.style.background='rgba(192, 57, 43, 0.2)';this.style.color='#c0392b'" onmouseout="this.style.background='rgba(15,13,10,0.9)';this.style.color='#b8a89a'">✕</button>
+    <iframe
+      id="ps-iframe"
+      src="/static/html/primeiros-socorros.html"
+      style="width:100%;height:100%;border:none;display:block;"
+      title="Simulador de Primeiros Socorros"
+    ></iframe>
+  </div>
+</div>
+
+<div id="pc-builder-overlay" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+  animation: pcbFadeIn 0.2s ease;
+">
+  <div style="
+    position: relative;
+    width: calc(100vw - 40px);
+    height: calc(100vh - 40px);
+    max-width: 1600px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    border: 1px solid rgba(232,160,74,0.2);
+  ">
+    
+    <button onclick="PCBuilderMundo.fechar()" style="
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 10;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(15,13,10,0.9);
+      border: 1px solid rgba(255,220,170,0.15);
+      color: #b8a89a;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      line-height: 1;
+    " onmouseover="this.style.background='rgba(232,160,74,0.2)';this.style.color='#e8a04a'" onmouseout="this.style.background='rgba(15,13,10,0.9)';this.style.color='#b8a89a'">✕</button>
+    <iframe
+      id="pc-builder-iframe"
+      src="/static/html/pc-builder.html"
+      style="width:100%;height:100%;border:none;display:block;"
+      title="Simulador de Montagem de PC"
+    ></iframe>
+  </div>
+</div>
+
+<style>
+@keyframes pcbFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes csFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes psFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
+
+<script>
+const PCBuilderMundo = (() => {
+  const overlay = () => document.getElementById('pc-builder-overlay');
+
+  function abrir() {
+    const el = overlay();
+    el.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    document.querySelectorAll('.mt-dropdown-content').forEach(d => d.classList.remove('show'));
+  }
+
+  function fechar() {
+    const el = overlay();
+    el.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay().style.display === 'flex') fechar();
+  });
+
+  
+  overlay().addEventListener('click', e => {
+    if (e.target === overlay()) fechar();
+  });
+
+  return { abrir, fechar };
+})();
+</script>
+
+<div id="circuito-sim-overlay" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+  animation: csFadeIn 0.2s ease;
+">
+  <div style="
+    position: relative;
+    width: calc(100vw - 40px);
+    height: calc(100vh - 40px);
+    max-width: 1600px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    border: 1px solid rgba(74,222,128,0.2);
+  ">
+    <button onclick="circuito_sim.fechar()" style="
+      position: absolute; top: 14px; right: 14px; z-index: 10;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(15,13,10,0.9); border: 1px solid rgba(255,220,170,0.15);
+      color: #b8a89a; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    " onmouseover="this.style.background='rgba(74,222,128,0.2)';this.style.color='#4ade80'" onmouseout="this.style.background='rgba(15,13,10,0.9)';this.style.color='#b8a89a'">✕</button>
+    <iframe
+      id="circuito-sim-iframe"
+      src="/static/html/circuito-sim.html"
+      style="width:100%;height:100%;border:none;display:block;"
+      title="Simulador de Circuitos Profissional"
+    ></iframe>
+  </div>
+</div>
+
+<script>
+
+const PrimeirosSocorros = (() => {
+  const overlay = () => document.getElementById('ps-overlay');
+
+  function abrir() {
+    const el = overlay();
+    if (!el) return;
+    el.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    document.querySelectorAll('.mt-dropdown-content').forEach(d => d.classList.remove('show'));
+  }
+
+  function fechar() {
+    const el = overlay();
+    if (el) el.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay()?.style.display === 'flex') fechar();
+  });
+
+  return { abrir, fechar };
+})();
+window.PrimeirosSocorros = PrimeirosSocorros;
+
+const CircuitoSim = (() => {
+  const overlay = () => document.getElementById('circuito-sim-overlay');
+  function abrir() { overlay().style.display = 'flex'; document.body.style.overflow = 'hidden'; document.querySelectorAll('.mt-dropdown-content').forEach(d => d.classList.remove('show')); }
+  function fechar() { overlay().style.display = 'none'; document.body.style.overflow = ''; }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay()?.style.display === 'flex') fechar(); });
+  overlay()?.addEventListener('click', e => { if (e.target === overlay()) fechar(); });
+  return { abrir, fechar };
+})();
+window.circuito_sim = CircuitoSim;
+</script>
+
+<script>
+const EduShorts = (() => {
+  function abrir() {
+    document.querySelectorAll('.mt-dropdown-content').forEach(d => d.classList.remove('show'));
+    window.location.href = '/static/tiktok.html';
+  }
+  return { abrir };
+})();
+window.EduShorts = EduShorts;
+</script>
+
+</body>
+</html>
