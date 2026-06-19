@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse
 from ai_routes import router as ai_router
 
 
-# from livekit import api as livekit_api  # removido: sem chave LiveKit
+from livekit import api as livekit_api
 import os
 
 try:
@@ -27,9 +27,9 @@ except ImportError:
     logger_tmp = logging.getLogger("studysync")
     logger_tmp.warning("  pacote cohere não instalado. Execute: pip install cohere")
 
-# LIVEKIT_URL removido
-# LIVEKIT_API_KEY removido
-# LIVEKIT_API_SECRET removido
+LIVEKIT_URL = os.getenv("LIVEKIT_URL", "")
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", "")
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", "")
 COHERE_API_KEY = os.getenv("COHERE_API_KEY", "")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -666,7 +666,23 @@ async def root():
 
 @app.get("/api/livekit-token")
 async def get_livekit_token(room: str, username: str):
-    raise HTTPException(status_code=503, detail="LiveKit não configurado neste ambiente")
+    if not (LIVEKIT_URL and LIVEKIT_API_KEY and LIVEKIT_API_SECRET):
+        raise HTTPException(status_code=503, detail="LiveKit não configurado neste ambiente")
+
+    token = (
+        livekit_api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+        .with_identity(username)
+        .with_name(username)
+        .with_grants(livekit_api.VideoGrants(
+            room_join=True,
+            room=room,
+        ))
+    )
+
+    return {
+        "url": LIVEKIT_URL,
+        "token": token.to_jwt(),
+    }
 @app.post("/api/auth/register")
 async def register(body: dict):
     username = (body.get("username") or "").strip()
