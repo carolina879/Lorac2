@@ -1,1 +1,74 @@
-{"users": {}, "rooms": {}, "messages": {}, "calendar_events": {}, "study_sessions": {}, "private_messages": []}
+{
+  "users": {
+    "b1f0a801-d67a-40eb-bee6-9ea88920e72b": {
+      "id": "b1f0a801-d67a-40eb-bee6-9ea88920e72b",
+      "username": "carol",
+      "email": "caroldeschampsdossantos@gmail.com",
+      "password_hash": "d8decfbbd4fb93c066cfbef9b84d0dea6deb23d7d413ce02490f1744cbda2696",
+      "role": "aluno",
+      "avatar": "\ud83e\udd8a",
+      "area": "",
+      "bio": "",
+      "goal_minutes": 60,
+      "subject_goals": {},
+      "flashcards": [],
+      "created_at": "2026-06-16T17:21:03.302373"
+    },
+    "d5180907-7cd3-4981-b978-5a996f0972a4": {
+      "id": "d5180907-7cd3-4981-b978-5a996f0972a4",
+      "username": "cde",
+      "email": "carols@gmail.com",
+      "password_hash": "d8decfbbd4fb93c066cfbef9b84d0dea6deb23d7d413ce02490f1744cbda2696",
+      "role": "aluno",
+      "avatar": "\ud83e\udd8a",
+      "area": "",
+      "bio": "",
+      "goal_minutes": 60,
+      "subject_goals": {},
+      "flashcards": [],
+      "created_at": "2026-06-19T13:14:59.678422"
+    }
+  },
+  "rooms": {
+    "97ae114e-280c-44ae-a3b5-6745634a143d": {
+      "id": "97ae114e-280c-44ae-a3b5-6745634a143d",
+      "name": "\ud83d\udcda Matem\u00e1tica - Enem",
+      "password_hash": null,
+      "created_at": "2026-06-16T17:20:07.174889"
+    },
+    "f3047d60-784f-402d-88f6-3b6c4ca7e325": {
+      "id": "f3047d60-784f-402d-88f6-3b6c4ca7e325",
+      "name": "\ud83d\udcbb Programa\u00e7\u00e3o Web",
+      "password_hash": null,
+      "created_at": "2026-06-16T17:20:07.174912"
+    },
+    "0c52c585-2828-4587-94fb-13c76e9e9f34": {
+      "id": "0c52c585-2828-4587-94fb-13c76e9e9f34",
+      "name": "\ud83e\uddea Qu\u00edmica Org\u00e2nica",
+      "password_hash": null,
+      "created_at": "2026-06-16T17:20:07.174924"
+    },
+    "9ced4967-a957-42de-bcea-2c26b04b1c3d": {
+      "id": "9ced4967-a957-42de-bcea-2c26b04b1c3d",
+      "name": "\ud83c\udfa8 Design UI/UX",
+      "password_hash": null,
+      "created_at": "2026-06-16T17:20:07.174934"
+    },
+    "fce4794b-d6ec-4f70-98ae-c60d809ac574": {
+      "id": "fce4794b-d6ec-4f70-98ae-c60d809ac574",
+      "name": "\ud83d\udcd6 Portugu\u00eas - Reda\u00e7\u00e3o",
+      "password_hash": null,
+      "created_at": "2026-06-16T17:20:07.174943"
+    },
+    "bd9e4ddc-5bc6-483b-b476-615adefb8749": {
+      "id": "bd9e4ddc-5bc6-483b-b476-615adefb8749",
+      "name": "\ud83d\udd2c F\u00edsica - Mec\u00e2nica",
+      "password_hash": null,
+      "created_at": "2026-06-16T17:20:07.174952"
+    }
+  },
+  "messages": {},
+  "calendar_events": {},
+  "study_sessions": {},
+  "private_messages": []
+}

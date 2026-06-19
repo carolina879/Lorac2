@@ -1467,7 +1467,7 @@ const CSS = `
 }
 
 
-
+/* ── BUSCA GLOBAL ── */
 .bib-search-global-btn {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,220,170,0.08);
@@ -1606,7 +1606,7 @@ const CSS = `
   font-family: 'DM Sans', sans-serif;
 }
 
-
+/* Highlight da palavra no texto da página */
 .bib-page-content mark.bib-hl {
   background: rgba(232,160,74,0.28);
   color: inherit;
@@ -1619,348 +1619,6 @@ const CSS = `
   font-weight: 600;
   box-shadow: 0 0 0 2px rgba(232,160,74,0.4);
 }
-
-
-.bib-timer-btn {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,220,170,0.08);
-  color: rgba(184,168,154,0.7);
-  height: 34px;
-  border-radius: 9px;
-  padding: 0 11px;
-  display: flex; align-items: center; gap: 5px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  position: relative;
-}
-.bib-timer-btn:hover { background: rgba(232,160,74,0.1); border-color: rgba(232,160,74,0.2); color: #e8a04a; }
-.bib-timer-btn.active { background: rgba(232,160,74,0.12); border-color: rgba(232,160,74,0.3); color: #e8a04a; }
-.bib-timer-btn.paused { background: rgba(255,160,50,0.08); border-color: rgba(255,160,50,0.25); color: rgba(255,190,80,0.9); }
-
-.bib-timer-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 280px;
-  background: rgba(14,11,8,0.97);
-  border: 1px solid rgba(255,220,170,0.1);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,160,74,0.05);
-  backdrop-filter: blur(24px);
-  z-index: 200;
-  display: none;
-  flex-direction: column;
-  gap: 16px;
-  animation: bib-panel-appear 0.25s cubic-bezier(0.16,1,0.3,1);
-}
-.bib-timer-panel.open { display: flex; }
-@keyframes bib-panel-appear {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.bib-timer-panel-title {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: 14px;
-  font-style: italic;
-  color: rgba(240,232,222,0.9);
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.bib-timer-panel-title svg { color: #e8a04a; }
-
-.bib-timer-presets {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.bib-timer-preset {
-  flex: 1;
-  min-width: 48px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,220,170,0.07);
-  color: rgba(184,168,154,0.7);
-  border-radius: 8px;
-  padding: 7px 4px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-.bib-timer-preset:hover { background: rgba(232,160,74,0.08); color: rgba(232,160,74,0.9); border-color: rgba(232,160,74,0.2); }
-.bib-timer-preset.active { background: rgba(232,160,74,0.14); color: #e8a04a; border-color: rgba(232,160,74,0.35); }
-
-.bib-timer-custom-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.bib-timer-custom-input {
-  background: rgba(30,26,21,0.8);
-  border: 1px solid rgba(255,220,170,0.08);
-  border-radius: 8px;
-  padding: 7px 10px;
-  color: #f0e8de;
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  width: 64px;
-  outline: none;
-  text-align: center;
-  transition: border-color 0.2s ease;
-}
-.bib-timer-custom-input:focus { border-color: rgba(232,160,74,0.3); }
-.bib-timer-custom-label {
-  font-size: 12px;
-  color: rgba(122,110,101,0.7);
-  font-weight: 300;
-}
-
-
-.bib-timer-ring-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 0;
-}
-.bib-timer-ring-svg {
-  transform: rotate(-90deg);
-  filter: drop-shadow(0 0 8px rgba(232,160,74,0.25));
-}
-.bib-timer-ring-bg {
-  fill: none;
-  stroke: rgba(255,255,255,0.06);
-  stroke-width: 5;
-}
-.bib-timer-ring-fill {
-  fill: none;
-  stroke: url(#bib-timer-grad);
-  stroke-width: 5;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1s linear;
-}
-.bib-timer-ring-text {
-  font-family: 'DM Mono', monospace;
-  font-size: 22px;
-  font-weight: 300;
-  color: rgba(240,232,222,0.95);
-  letter-spacing: 0.05em;
-  text-align: center;
-  line-height: 1;
-}
-.bib-timer-ring-sub {
-  font-size: 11px;
-  color: rgba(122,110,101,0.6);
-  font-weight: 300;
-  letter-spacing: 0.04em;
-  text-align: center;
-}
-
-.bib-timer-actions {
-  display: flex;
-  gap: 8px;
-}
-.bib-timer-action-btn {
-  flex: 1;
-  border-radius: 9px;
-  padding: 9px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-.bib-timer-start-btn {
-  background: linear-gradient(135deg, #e8a04a 0%, #f0ad55 100%);
-  color: #0a0806;
-  box-shadow: 0 3px 12px rgba(232,160,74,0.25);
-}
-.bib-timer-start-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(232,160,74,0.4); }
-.bib-timer-pause-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,220,170,0.1);
-  color: rgba(184,168,154,0.8);
-}
-.bib-timer-pause-btn:hover { background: rgba(232,160,74,0.08); border-color: rgba(232,160,74,0.2); color: #e8a04a; }
-.bib-timer-stop-btn {
-  background: rgba(192,57,43,0.12);
-  border: 1px solid rgba(192,57,43,0.2);
-  color: rgba(220,100,80,0.8);
-}
-.bib-timer-stop-btn:hover { background: rgba(192,57,43,0.22); border-color: rgba(192,57,43,0.35); }
-
-
-.bib-timer-progress-bar {
-  position: absolute;
-  bottom: -2px; left: 0;
-  height: 2px;
-  width: 0%;
-  background: linear-gradient(90deg, rgba(232,160,74,0.5), #e8a04a);
-  transition: width 1s linear;
-  z-index: 101;
-  border-radius: 0 2px 2px 0;
-}
-.bib-timer-progress-bar::after {
-  content: '';
-  position: absolute;
-  right: -1px; top: -2px;
-  width: 5px; height: 5px;
-  background: #e8a04a;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(232,160,74,0.9);
-}
-
-
-.bib-timer-alert {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: rgba(14,11,8,0.96);
-  border: 1px solid rgba(232,160,74,0.3);
-  border-radius: 14px;
-  padding: 14px 22px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  color: rgba(240,232,222,0.9);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,160,74,0.08);
-  z-index: 9999;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
-}
-.bib-timer-alert.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.bib-timer-alert svg { color: #e8a04a; flex-shrink: 0; }
-
-
-.bib-timer-done-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10,8,6,0.88);
-  z-index: 300;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(8px);
-  animation: bib-done-fade 0.5s ease;
-}
-.bib-timer-done-overlay.show { display: flex; }
-@keyframes bib-done-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.bib-timer-done-card {
-  background: rgba(14,11,8,0.97);
-  border: 1px solid rgba(232,160,74,0.15);
-  border-radius: 24px;
-  padding: 40px 48px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  text-align: center;
-  max-width: 400px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(232,160,74,0.06);
-  animation: bib-done-card 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s both;
-}
-@keyframes bib-done-card {
-  from { opacity: 0; transform: translateY(24px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.bib-timer-done-icon {
-  width: 72px; height: 72px;
-  background: rgba(232,160,74,0.1);
-  border: 1px solid rgba(232,160,74,0.2);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px;
-  margin-bottom: 4px;
-}
-.bib-timer-done-title {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: 26px;
-  font-style: italic;
-  color: #f0e8de;
-  font-weight: 400;
-}
-.bib-timer-done-sub {
-  font-size: 14px;
-  color: rgba(184,168,154,0.6);
-  font-weight: 300;
-  line-height: 1.5;
-}
-.bib-timer-done-stats {
-  display: flex;
-  gap: 24px;
-  margin: 8px 0;
-}
-.bib-timer-done-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.bib-timer-done-stat-val {
-  font-family: 'DM Mono', monospace;
-  font-size: 24px;
-  color: #e8a04a;
-  font-weight: 300;
-}
-.bib-timer-done-stat-label {
-  font-size: 11px;
-  color: rgba(122,110,101,0.6);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.bib-timer-done-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-.bib-timer-done-continue {
-  background: linear-gradient(135deg, #e8a04a 0%, #f0ad55 100%);
-  color: #0a0806;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 22px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.bib-timer-done-continue:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(232,160,74,0.35); }
-.bib-timer-done-close {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,220,170,0.08);
-  color: rgba(184,168,154,0.7);
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.bib-timer-done-close:hover { background: rgba(232,160,74,0.06); color: rgba(240,232,222,0.8); }
 
 @media (max-width: 900px) {
   .bib-shelf-screen { padding: 24px 20px 40px; }
@@ -2035,20 +1693,6 @@ let state = {
   searchResults: [],
   currentSearchIndex: -1,
   lastSearchQuery: '',
-  _lastSelection: null,
-  _pendingNotePageIdx: 0,
-  ttsActive: false,
-  speechSynth: window.speechSynthesis,
-  speechUtterance: null,
-  timerDurationSec: 600,  
-  timerRemainingSecAtStart: 600,
-  timerElapsed: 0,
-  timerInterval: null,
-  timerRunning: false,
-  timerPaused: false,
-  timerPanelOpen: false,
-  timerPageStart: 0,
-  timerAlertFired: false,
 };
 
 function loadState() {
@@ -2068,14 +1712,14 @@ function loadState() {
       state.theme = s.theme || 'warm';
       state.fontFamily = s.fontFamily || 'Crimson Pro';
 
-      
+      // Reset daily progress if it's a new day
       const today = new Date().toDateString();
       if (state.lastReadDate !== today) {
         state.pagesReadToday = 0;
         state.lastReadDate = today;
       }
     }
-   
+    // Load totalWords for existing books
     state.books.forEach(book => {
       if (book.content && !book.totalWords) book.totalWords = book.content.split(/\s+/).filter(Boolean).length;
     });
@@ -2299,87 +1943,14 @@ function buildHTML() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 6v6l4 2"/></svg>
           Foco
         </button>
-        <button class="bib-settings-btn" onclick="BibliotecaVirtual.toggleTTS()" id="bib-tts-btn" title="Ouvir texto (Leitura em voz alta)">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 10 0 0 1 0 7.07"/></svg>
-          Ouvir
-        </button>
-        <div style="position:relative">
-          <button class="bib-timer-btn" onclick="BibliotecaVirtual.toggleTimerPanel()" id="bib-timer-btn" title="Leitura por tempo">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span id="bib-timer-btn-label">Timer</span>
-          </button>
-          <div class="bib-timer-panel" id="bib-timer-panel">
-            <div class="bib-timer-panel-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Leitura por Tempo
-            </div>
-            <div>
-              <div style="font-size:11px;color:rgba(122,110,101,0.6);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;font-family:'DM Mono',monospace;">Durac&atilde;o</div>
-              <div class="bib-timer-presets" id="bib-timer-presets">
-                <button class="bib-timer-preset" onclick="BibliotecaVirtual.setTimerPreset(5)">5 min</button>
-                <button class="bib-timer-preset active" onclick="BibliotecaVirtual.setTimerPreset(10)">10 min</button>
-                <button class="bib-timer-preset" onclick="BibliotecaVirtual.setTimerPreset(15)">15 min</button>
-                <button class="bib-timer-preset" onclick="BibliotecaVirtual.setTimerPreset(20)">20 min</button>
-                <button class="bib-timer-preset" onclick="BibliotecaVirtual.setTimerPreset(30)">30 min</button>
-              </div>
-              <div class="bib-timer-custom-row" style="margin-top:10px;">
-                <input type="number" class="bib-timer-custom-input" id="bib-timer-custom" min="1" max="120" value="10" oninput="BibliotecaVirtual.setTimerCustom(this.value)" />
-                <span class="bib-timer-custom-label">minutos personalizados</span>
-              </div>
-            </div>
-            <div class="bib-timer-ring-wrap" id="bib-timer-ring-wrap" style="display:none;">
-              <svg class="bib-timer-ring-svg" width="100" height="100" viewBox="0 0 100 100">
-                <defs>
-                  <linearGradient id="bib-timer-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="rgba(232,160,74,0.7)"/>
-                    <stop offset="100%" stop-color="#e8a04a"/>
-                  </linearGradient>
-                </defs>
-                <circle class="bib-timer-ring-bg" cx="50" cy="50" r="42"/>
-                <circle class="bib-timer-ring-fill" cx="50" cy="50" r="42" id="bib-timer-ring-fill"
-                  stroke-dasharray="263.9" stroke-dashoffset="0"/>
-              </svg>
-              <div class="bib-timer-ring-text" id="bib-timer-ring-text">00:00</div>
-              <div class="bib-timer-ring-sub" id="bib-timer-ring-sub">pronto para iniciar</div>
-            </div>
-            <div class="bib-timer-actions" id="bib-timer-actions">
-              <button class="bib-timer-action-btn bib-timer-start-btn" id="bib-timer-start-btn" onclick="BibliotecaVirtual.startTimer()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Iniciar
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
-    <div class="bib-progress-track" style="position:relative;">
+    <div class="bib-progress-track">
       <div class="bib-progress-fill-bar" id="bib-progress-bar" style="width:0%"></div>
-      <div class="bib-timer-progress-bar" id="bib-timer-progress-bar" style="width:0%;display:none;"></div>
-    </div>
-    
-    <div class="bib-timer-done-overlay" id="bib-timer-done-overlay">
-      <div class="bib-timer-done-card">
-        <div class="bib-timer-done-icon">&#9200;</div>
-        <div class="bib-timer-done-title">Sess&atilde;o conclu&iacute;da!</div>
-        <div class="bib-timer-done-sub" id="bib-timer-done-sub">Voc&ecirc; completou sua sess&atilde;o de leitura.</div>
-        <div class="bib-timer-done-stats">
-          <div class="bib-timer-done-stat">
-            <div class="bib-timer-done-stat-val" id="bib-done-minutes">0</div>
-            <div class="bib-timer-done-stat-label">Minutos</div>
-          </div>
-          <div class="bib-timer-done-stat">
-            <div class="bib-timer-done-stat-val" id="bib-done-pages">0</div>
-            <div class="bib-timer-done-stat-label">P&aacute;ginas</div>
-          </div>
-        </div>
-        <div class="bib-timer-done-actions">
-          <button class="bib-timer-done-continue" onclick="BibliotecaVirtual.timerContinue()">Continuar Lendo</button>
-          <button class="bib-timer-done-close" onclick="BibliotecaVirtual.timerClose()">Encerrar</button>
-        </div>
-      </div>
     </div>
 
+    <!-- BUSCA GLOBAL -->
     <div class="bib-search-panel" id="bib-search-panel">
       <div class="bib-search-input-row">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2521,9 +2092,9 @@ function buildHTML() {
 </div>
 
 <div class="bib-selection-menu" id="bib-selection-menu">
-  <button class="bib-sel-btn" onmousedown="event.preventDefault()" onclick="BibliotecaVirtual.highlightSelection()">🖊 Grifar</button>
-  <button class="bib-sel-btn" onmousedown="event.preventDefault()" onclick="BibliotecaVirtual.noteSelection()">📝 Nota</button>
-  <button class="bib-sel-btn green" onmousedown="event.preventDefault()" onclick="BibliotecaVirtual.explainSelection()">🔍 Explicar</button>
+  <button class="bib-sel-btn" onclick="BibliotecaVirtual.highlightSelection()">🖊 Grifar</button>
+  <button class="bib-sel-btn" onclick="BibliotecaVirtual.noteSelection()">📝 Nota</button>
+  <button class="bib-sel-btn green" onclick="BibliotecaVirtual.explainSelection()">🔍 Explicar</button>
 </div>
 
 <div class="bib-note-modal-backdrop" id="bib-note-modal-backdrop">
@@ -2658,42 +2229,20 @@ function bindEvents() {
   });
 }
 
-function onMouseUp(e) {
+function onMouseUp() {
   const sel = window.getSelection();
   const menu = document.getElementById('bib-selection-menu');
   if (!menu) return;
-
-  
-  if (e && e.target && menu.contains(e.target)) return;
-
   if (!sel || sel.isCollapsed || !sel.toString().trim()) {
     menu.classList.remove('visible');
     return;
   }
-
-  const anchorNode = sel.anchorNode;
-  const content = document.getElementById('bib-page-content');
-  const secondContent = document.getElementById('bib-page-content-second');
-  
-  const insideMain = content && content.contains(anchorNode);
-  const insideSecond = secondContent && secondContent.contains(anchorNode);
-
-  if (!insideMain && !insideSecond) {
-    menu.classList.remove('visible');
-    return;
-  }
-
-  state._lastSelection = {
-    text: sel.toString(),
-    pageIdx: insideSecond ? state.currentPage + 1 : state.currentPage
-  };
-
   const readerScreen = document.getElementById('bib-reader-screen');
   if (!readerScreen || !readerScreen.classList.contains('active')) return;
   const range = sel.getRangeAt(0);
   const rect = range.getBoundingClientRect();
   menu.classList.add('visible');
- 
+  // Calculate position after menu is visible so we have its dimensions
   requestAnimationFrame(() => {
     const menuW = menu.offsetWidth || 220;
     const menuH = menu.offsetHeight || 44;
@@ -2708,8 +2257,8 @@ function onMouseUp(e) {
   });
 }
 
-function onTouchEnd(e) {
-  setTimeout(() => onMouseUp(e), 50);
+function onTouchEnd() {
+  setTimeout(onMouseUp, 50);
 }
 
 async function loadFile(file) {
@@ -2728,7 +2277,7 @@ async function loadFile(file) {
     currentPage: 0,
     totalPages: 0,
     addedAt: Date.now(),
-
+    // New custom properties
     emoji: document.getElementById('bib-custom-emoji')?.value || ['📚','📖','📝','🎓','✨','🔬','🌍','🎭'][Math.floor(Math.random() * 8)],
     paletteIdx: Math.floor(Math.random() * COVER_PALETTES.length),
     customColor: document.getElementById('bib-custom-color')?.value || null,
@@ -2736,7 +2285,7 @@ async function loadFile(file) {
   };
 
   if (book.customColor) {
-    book.paletteIdx = -1; 
+    book.paletteIdx = -1; // Flag to use customColor instead of palette
   }
 
   try {
@@ -3009,7 +2558,7 @@ function openBook(id) {
   state.currentPage = book.currentPage || 0;
   state.pages = book.pages || ['Conteúdo não disponível'];
   
-  
+  // Restore exact scroll position if available
   const savedScroll = localStorage.getItem(`lorac_bib_scroll_${book.id}_${state.currentPage}`);
   if (savedScroll) {
     setTimeout(() => {
@@ -3023,7 +2572,7 @@ function openBook(id) {
   if (cinemaEl && cinemaTitle) {
     cinemaTitle.textContent = book.title;
     cinemaEl.classList.add('active');
-    
+    // Update totalWords for the book if not already set
     if (!book.totalWords && book.content) {
       book.totalWords = book.content.split(/\s+/).filter(Boolean).length;
     }
@@ -3058,7 +2607,7 @@ function closeReader() {
     state.currentBook.currentPage = state.currentPage;
     saveState();
     
-    
+    // Save current scroll position
     const content = document.getElementById('bib-page-content');
     if (content) {
       localStorage.setItem(`lorac_bib_scroll_${state.currentBook.id}_${state.currentPage}`, content.scrollTop);
@@ -3067,7 +2616,6 @@ function closeReader() {
   document.getElementById('bib-reader-screen')?.classList.remove('active');
   document.getElementById('bib-shelf-screen')?.classList.add('active');
   state.currentBook = null;
-  stopTTS();
   state.tocOpen = false;
   state.settingsOpen = false;
   state.aiPanelOpen = false;
@@ -3101,10 +2649,10 @@ function renderReader() {
   page.style.setProperty('--page-text', theme.pageText);
   page.style.setProperty('--page-heading', theme.pageHeading);
 
- 
+  // Handle Two Page Mode
   container.classList.toggle('two-page', state.twoPageMode);
 
-  
+  // First page inner sizing
   const firstInner = content.closest('.bib-page-inner');
   if (firstInner) {
     firstInner.style.flex = '1';
@@ -3135,6 +2683,7 @@ function renderReader() {
     secondInner.style.display = 'none';
   }
 
+  // Restore scroll position
   const savedScroll = localStorage.getItem(`lorac_bib_scroll_${state.currentBook.id}_${state.currentPage}`);
   if (savedScroll) content.scrollTop = parseFloat(savedScroll);
   else content.scrollTop = 0;
@@ -3169,7 +2718,7 @@ function renderReader() {
     bmBtn.style.borderColor = isBookmarked ? 'rgba(232,160,74,0.3)' : '';
   }
 
-  
+  // Re-apply search highlights whenever the page renders
   if (document.getElementById('bib-search-panel')?.classList.contains('open') && searchState.query) {
     setTimeout(() => highlightSearchResultsOnPage(), 60);
   }
@@ -3356,6 +2905,7 @@ function toggleBookmark() {
   } else {
     state.bookmarks[bId].splice(idx, 1);
     showToast('Marcador removido');
+    bmBtn.classList.remove('active');
   }
   saveState();
   renderReader();
@@ -3389,36 +2939,32 @@ function renderHighlightsPanel() {
 }
 
 function highlightSelection() {
-  const selection = state._lastSelection;
-  if (!selection || !selection.text.trim() || !state.currentBook) return;
-  
-  const text = selection.text.trim();
-  const pageIdx = selection.pageIdx;
+  const sel = window.getSelection();
+  if (!sel || !sel.toString().trim() || !state.currentBook) return;
+  const text = sel.toString().trim();
   const bId = state.currentBook.id;
-  
   if (!state.highlights[bId]) state.highlights[bId] = {};
-  if (!state.highlights[bId][pageIdx]) state.highlights[bId][pageIdx] = [];
-  state.highlights[bId][pageIdx].push({ text, note: '', at: Date.now() });
-  
-  window.getSelection()?.removeAllRanges();
+  if (!state.highlights[bId][state.currentPage]) state.highlights[bId][state.currentPage] = [];
+  state.highlights[bId][state.currentPage].push({ text, note: '', at: Date.now() });
+  sel.removeAllRanges();
   document.getElementById('bib-selection-menu')?.classList.remove('visible');
+  showToast('Texto grifado');
   saveState();
   renderReader();
   showToast('Texto grifado');
 }
 
 function noteSelection() {
-  const selection = state._lastSelection;
-  if (!selection || !selection.text.trim()) return;
-  const text = selection.text.trim();
+  const sel = window.getSelection();
+  if (!sel || !sel.toString().trim()) return;
+  const text = sel.toString().trim();
   document.getElementById('bib-selection-menu')?.classList.remove('visible');
   
-  
+  // Store pending note text
   state._pendingNoteText = text;
-  state._pendingNoteSelection = selection.text;
-  state._pendingNotePageIdx = selection.pageIdx;
+  state._pendingNoteSelection = sel.toString();
   
-  
+  // Show beautiful modal
   const preview = document.getElementById('bib-note-preview');
   const textarea = document.getElementById('bib-note-textarea');
   const backdrop = document.getElementById('bib-note-modal-backdrop');
@@ -3429,7 +2975,7 @@ function noteSelection() {
     backdrop.classList.add('open');
     setTimeout(() => textarea?.focus(), 300);
   }
-  window.getSelection()?.removeAllRanges();
+  sel.removeAllRanges();
 }
 
 function closeNoteModal() {
@@ -3446,10 +2992,9 @@ function saveNoteModal() {
   
   const bId = state.currentBook?.id;
   if (!bId) { closeNoteModal(); return; }
-  const pageIdx = state._pendingNotePageIdx;
   if (!state.highlights[bId]) state.highlights[bId] = {};
-  if (!state.highlights[bId][pageIdx]) state.highlights[bId][pageIdx] = [];
-  state.highlights[bId][pageIdx].push({ text, note, at: Date.now() });
+  if (!state.highlights[bId][state.currentPage]) state.highlights[bId][state.currentPage] = [];
+  state.highlights[bId][state.currentPage].push({ text, note, at: Date.now() });
   closeNoteModal();
   saveState();
   renderReader();
@@ -3457,10 +3002,10 @@ function saveNoteModal() {
 }
 
 function explainSelection() {
-  const selection = state._lastSelection;
-  if (!selection || !selection.text.trim()) return;
-  const text = selection.text.trim();
-  window.getSelection()?.removeAllRanges();
+  const sel = window.getSelection();
+  if (!sel || !sel.toString().trim()) return;
+  const text = sel.toString().trim();
+  sel.removeAllRanges();
   document.getElementById('bib-selection-menu')?.classList.remove('visible');
   if (!state.aiPanelOpen) toggleAI();
   callAI(`Explique de forma clara e didática o seguinte trecho:\n\n"${text}"`);
@@ -3515,7 +3060,7 @@ function showShortcutsModal() {
     app.openModal(html);
   } else {
     console.warn("App.openModal não disponível. Usando fallback de alerta.");
-   
+    // Fallback simples para o usuário
     alert("Atalhos de Teclado:\n→ Avançar Página\n← Voltar Página\nM Marcar Favorito\nN Abrir Índice\nS Aparência\nD Modo 2 Páginas\nESC Sair do Leitor");
   }
 }
@@ -3802,11 +3347,11 @@ function toggleFocusMode() {
   }
 }
 
-
+// ── BUSCA GLOBAL ──────────────────────────────────────────────
 const searchState = {
   query: '',
-  results: [],     
-  current: -1,     
+  results: [],      // [{pageIdx, matchIdx, contextText}]
+  current: -1,      // índice dentro de results
 };
 
 function toggleSearchPanel() {
@@ -3864,7 +3409,7 @@ function runSearch(query) {
     while (true) {
       const found = lower.indexOf(q, pos);
       if (found === -1) break;
-      
+      // Build context snippet (~80 chars around match)
       const start   = Math.max(0, found - 40);
       const end     = Math.min(text.length, found + q.length + 40);
       const before  = (start > 0 ? '…' : '') + escHtml(text.slice(start, found));
@@ -3897,7 +3442,7 @@ function runSearch(query) {
     return;
   }
 
-  
+  // Group by page for display
   const byPage = {};
   searchState.results.forEach(r => {
     if (!byPage[r.pageIdx]) byPage[r.pageIdx] = [];
@@ -3913,7 +3458,7 @@ function runSearch(query) {
     `).join('');
   }).join('');
 
- 
+  // Jump to first result
   if (total > 0) jumpToResult(0);
 }
 
@@ -3924,25 +3469,25 @@ function jumpToResult(matchIdx) {
   const r = searchState.results[matchIdx];
   if (r === undefined) return;
 
-
+  // Update active highlight in list
   document.querySelectorAll('.bib-search-result-item').forEach(el => {
     el.classList.toggle('active', parseInt(el.dataset.match) === matchIdx);
   });
-  
+  // Scroll item into view in panel
   const activeItem = document.querySelector(`.bib-search-result-item[data-match="${matchIdx}"]`);
   activeItem?.scrollIntoView({ block: 'nearest' });
 
- 
+  // Update stats counter
   const statsEl = document.getElementById('bib-search-stats');
   if (statsEl) {
     statsEl.textContent = `${matchIdx + 1} / ${searchState.results.length}`;
     statsEl.className = 'bib-search-stats has-results';
   }
 
-  
+  // Navigate to page
   goToPage(r.pageIdx);
 
-  
+  // After render, highlight on page
   setTimeout(() => highlightSearchResultsOnPage(), 80);
 }
 
@@ -3969,7 +3514,7 @@ function highlightSearchResultsOnPage() {
   const qLower = q.toLowerCase();
   const currentResult = searchState.results[searchState.current];
 
-  
+  // Walk text nodes and wrap matches
   function walkAndHighlight(node, isCurrent) {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent;
@@ -4004,15 +3549,15 @@ function highlightSearchResultsOnPage() {
     return null;
   }
 
-  
+  // Clear old highlights first
   clearSearchHighlights();
 
   walkAndHighlight(contentEl, true);
 
- 
+  // Mark current occurrence
   if (currentResult && currentResult.pageIdx === state.currentPage) {
     const allMarks = contentEl.querySelectorAll('mark.bib-hl');
-    
+    // find which occurrence index on this page the current result is
     let occurrenceOnPage = 0;
     for (let i = 0; i < searchState.current; i++) {
       if (searchState.results[i].pageIdx === state.currentPage) occurrenceOnPage++;
@@ -4036,302 +3581,8 @@ function clearSearchHighlights() {
   });
 }
 
-
+// Legacy stubs kept for compatibility
 function searchInBook(query) { runSearch(query); }
-
-
-
-const TIMER_CIRCUMFERENCE = 263.9; // 2π × 42
-
-function toggleTimerPanel() {
-  state.timerPanelOpen = !state.timerPanelOpen;
-  const panel = document.getElementById('bib-timer-panel');
-  const btn   = document.getElementById('bib-timer-btn');
-  if (!panel) return;
-  if (state.timerPanelOpen) {
-    panel.classList.add('open');
-    btn?.classList.add('active');
-  
-    if (state.timerRunning || state.timerPaused) {
-      document.getElementById('bib-timer-ring-wrap').style.display = 'flex';
-    }
-  } else {
-    panel.classList.remove('open');
-    if (!state.timerRunning && !state.timerPaused) btn?.classList.remove('active');
-  }
- 
-  setTimeout(() => {
-    if (state.timerPanelOpen) {
-      document.addEventListener('click', timerPanelOutsideClick, { once: true });
-    }
-  }, 10);
-}
-
-function timerPanelOutsideClick(e) {
-  const panel = document.getElementById('bib-timer-panel');
-  const btn   = document.getElementById('bib-timer-btn');
-  if (panel && !panel.contains(e.target) && !btn?.contains(e.target)) {
-    panel.classList.remove('open');
-    state.timerPanelOpen = false;
-    if (!state.timerRunning && !state.timerPaused) btn?.classList.remove('active');
-  }
-}
-
-function setTimerPreset(minutes) {
-  if (state.timerRunning) return; // don't change while running
-  state.timerDurationSec = minutes * 60;
-  state.timerRemainingSecAtStart = state.timerDurationSec;
-  const custom = document.getElementById('bib-timer-custom');
-  if (custom) custom.value = minutes;
- 
-  document.querySelectorAll('.bib-timer-preset').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.textContent) === minutes);
-  });
-  updateTimerDisplay(state.timerDurationSec, state.timerDurationSec);
-}
-
-function setTimerCustom(val) {
-  const minutes = Math.max(1, Math.min(120, parseInt(val) || 1));
-  state.timerDurationSec = minutes * 60;
-  state.timerRemainingSecAtStart = state.timerDurationSec;
-  
-  document.querySelectorAll('.bib-timer-preset').forEach(btn => btn.classList.remove('active'));
-  updateTimerDisplay(state.timerDurationSec, state.timerDurationSec);
-}
-
-function startTimer() {
-  if (state.timerRunning) return;
-  if (state.timerPaused) {
-    
-    state.timerRunning = true;
-    state.timerPaused = false;
-    runTimerTick();
-    updateTimerButtons();
-    document.getElementById('bib-timer-btn')?.classList.add('active');
-    document.getElementById('bib-timer-btn')?.classList.remove('paused');
-    return;
-  }
-  
-  state.timerElapsed = 0;
-  state.timerRemainingSecAtStart = state.timerDurationSec;
-  state.timerRunning = true;
-  state.timerPaused = false;
-  state.timerPageStart = state.currentPage;
-  state.timerAlertFired = false;
-
- 
-  const ringWrap = document.getElementById('bib-timer-ring-wrap');
-  if (ringWrap) ringWrap.style.display = 'flex';
-
-  
-  const tpb = document.getElementById('bib-timer-progress-bar');
-  if (tpb) tpb.style.display = 'block';
-
-  updateTimerDisplay(state.timerDurationSec, state.timerDurationSec);
-  updateTimerButtons();
-
-  const btn = document.getElementById('bib-timer-btn');
-  if (btn) { btn.classList.add('active'); btn.classList.remove('paused'); }
-
-  runTimerTick();
-}
-
-function runTimerTick() {
-  if (state.timerInterval) clearInterval(state.timerInterval);
-  state.timerInterval = setInterval(() => {
-    if (!state.timerRunning) { clearInterval(state.timerInterval); return; }
-    state.timerElapsed++;
-    const remaining = state.timerDurationSec - state.timerElapsed;
-
-    updateTimerDisplay(remaining, state.timerDurationSec);
-    updateTimerProgressBar(state.timerElapsed, state.timerDurationSec);
-    updateTimerBtnLabel(remaining);
-
-    
-    if (!state.timerAlertFired && remaining === 60) {
-      state.timerAlertFired = true;
-      showTimerAlert('⏰ Falta 1 minuto para o fim da sessão!');
-    }
-
-    if (remaining <= 0) {
-      clearInterval(state.timerInterval);
-      state.timerInterval = null;
-      state.timerRunning = false;
-      finishTimer();
-    }
-  }, 1000);
-}
-
-function pauseTimer() {
-  if (!state.timerRunning) return;
-  state.timerRunning = false;
-  state.timerPaused = true;
-  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
-  updateTimerButtons();
-  const btn = document.getElementById('bib-timer-btn');
-  if (btn) { btn.classList.add('paused'); btn.classList.remove('active'); }
-  const sub = document.getElementById('bib-timer-ring-sub');
-  if (sub) sub.textContent = 'pausado';
-}
-
-function stopTimer() {
-  state.timerRunning = false;
-  state.timerPaused = false;
-  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
-  state.timerElapsed = 0;
-
-  const ringWrap = document.getElementById('bib-timer-ring-wrap');
-  if (ringWrap) ringWrap.style.display = 'none';
-  const tpb = document.getElementById('bib-timer-progress-bar');
-  if (tpb) { tpb.style.display = 'none'; tpb.style.width = '0%'; }
-
-  updateTimerDisplay(state.timerDurationSec, state.timerDurationSec);
-  updateTimerButtons();
-
-  const btn = document.getElementById('bib-timer-btn');
-  if (btn) { btn.classList.remove('active'); btn.classList.remove('paused'); }
-  const label = document.getElementById('bib-timer-btn-label');
-  if (label) label.textContent = 'Timer';
-}
-
-function finishTimer() {
-  const pages = state.currentPage - state.timerPageStart;
-  const minutes = Math.floor(state.timerElapsed / 60);
-
-  
-  const doneMin = document.getElementById('bib-done-minutes');
-  const donePg  = document.getElementById('bib-done-pages');
-  const doneSub = document.getElementById('bib-timer-done-sub');
-  if (doneMin) doneMin.textContent = minutes;
-  if (donePg)  donePg.textContent  = Math.max(0, pages);
-  if (doneSub) doneSub.textContent = `Sessão de ${minutes} minuto${minutes !== 1 ? 's' : ''} concluída. Excelente foco!`;
-
-  document.getElementById('bib-timer-done-overlay')?.classList.add('show');
-
-  
-  const btn = document.getElementById('bib-timer-btn');
-  if (btn) { btn.classList.remove('active'); btn.classList.remove('paused'); }
-  const label = document.getElementById('bib-timer-btn-label');
-  if (label) label.textContent = 'Timer';
-
-  const tpb = document.getElementById('bib-timer-progress-bar');
-  if (tpb) { tpb.style.width = '100%'; }
-
-  
-  playTimerDoneSound();
-}
-
-function timerContinue() {
-  document.getElementById('bib-timer-done-overlay')?.classList.remove('show');
-  stopTimer();
-}
-
-function timerClose() {
-  document.getElementById('bib-timer-done-overlay')?.classList.remove('show');
-  stopTimer();
-}
-
-function updateTimerDisplay(remaining, total) {
-  const mins = Math.floor(Math.max(0, remaining) / 60);
-  const secs = Math.max(0, remaining) % 60;
-  const text = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
-  const el = document.getElementById('bib-timer-ring-text');
-  if (el) el.textContent = text;
-
-
-  const fill = document.getElementById('bib-timer-ring-fill');
-  if (fill) {
-    const pct = total > 0 ? Math.max(0, remaining) / total : 1;
-    fill.style.strokeDashoffset = TIMER_CIRCUMFERENCE * (1 - pct);
-  }
-
-
-  const sub = document.getElementById('bib-timer-ring-sub');
-  if (sub && state.timerRunning) {
-    const pages = state.currentPage - state.timerPageStart;
-    sub.textContent = pages > 0 ? `${pages} página${pages !== 1 ? 's' : ''} lida${pages !== 1 ? 's' : ''}` : 'lendo...';
-  }
-}
-
-function updateTimerProgressBar(elapsed, total) {
-  const tpb = document.getElementById('bib-timer-progress-bar');
-  if (!tpb) return;
-  const pct = total > 0 ? Math.min(100, (elapsed / total) * 100) : 0;
-  tpb.style.width = pct + '%';
-}
-
-function updateTimerBtnLabel(remaining) {
-  const label = document.getElementById('bib-timer-btn-label');
-  if (!label) return;
-  const mins = Math.floor(Math.max(0, remaining) / 60);
-  const secs = Math.max(0, remaining) % 60;
-  label.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
-}
-
-function updateTimerButtons() {
-  const actionsEl = document.getElementById('bib-timer-actions');
-  if (!actionsEl) return;
-  if (state.timerRunning) {
-    actionsEl.innerHTML = `
-      <button class="bib-timer-action-btn bib-timer-pause-btn" onclick="BibliotecaVirtual.pauseTimer()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-        Pausar
-      </button>
-      <button class="bib-timer-action-btn bib-timer-stop-btn" onclick="BibliotecaVirtual.stopTimer()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-        Parar
-      </button>`;
-  } else if (state.timerPaused) {
-    actionsEl.innerHTML = `
-      <button class="bib-timer-action-btn bib-timer-start-btn" onclick="BibliotecaVirtual.startTimer()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Retomar
-      </button>
-      <button class="bib-timer-action-btn bib-timer-stop-btn" onclick="BibliotecaVirtual.stopTimer()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-        Parar
-      </button>`;
-  } else {
-    actionsEl.innerHTML = `
-      <button class="bib-timer-action-btn bib-timer-start-btn" id="bib-timer-start-btn" onclick="BibliotecaVirtual.startTimer()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Iniciar
-      </button>`;
-  }
-}
-
-function showTimerAlert(msg) {
-  let el = document.getElementById('bib-timer-alert-toast');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'bib-timer-alert-toast';
-    el.className = 'bib-timer-alert';
-    el.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span></span>`;
-    document.body.appendChild(el);
-  }
-  el.querySelector('span').textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 4000);
-}
-
-function playTimerDoneSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
-      gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.18 + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4);
-      osc.start(ctx.currentTime + i * 0.18);
-      osc.stop(ctx.currentTime + i * 0.18 + 0.45);
-    });
-  } catch(e) {}
-}
 
 window.BibliotecaVirtual = {
   open, close,
@@ -4355,44 +3606,7 @@ window.BibliotecaVirtual = {
   toggleSearchPanel, closeSearchPanel, runSearch,
   jumpToResult, searchNav, searchKeyNav,
   highlightSearchResultsOnPage, clearSearchHighlights,
-  toggleTTS, stopTTS,
-  toggleTimerPanel, setTimerPreset, setTimerCustom,
-  startTimer, pauseTimer, stopTimer,
-  timerContinue, timerClose,
 };
-
-function toggleTTS() {
-  if (state.ttsActive) {
-    stopTTS();
-  } else {
-    startTTS();
-  }
-}
-
-function startTTS() {
-  const content = document.getElementById('bib-page-content');
-  if (!content || !state.speechSynth) return;
-
-  state.ttsActive = true;
-  const btn = document.getElementById('bib-tts-btn');
-  if (btn) { btn.style.color = '#e8a04a'; btn.style.borderColor = 'rgba(232,160,74,0.3)'; }
-
-  const text = content.innerText;
-  state.speechUtterance = new SpeechSynthesisUtterance(text);
-  state.speechUtterance.lang = 'pt-BR';
-  state.speechUtterance.onend = () => stopTTS();
-  
-  state.speechSynth.cancel();
-  state.speechSynth.speak(state.speechUtterance);
-  showToast('Iniciando leitura em voz alta');
-}
-
-function stopTTS() {
-  state.ttsActive = false;
-  if (state.speechSynth) state.speechSynth.cancel();
-  const btn = document.getElementById('bib-tts-btn');
-  if (btn) { btn.style.color = ''; btn.style.borderColor = ''; }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
