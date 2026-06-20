@@ -17,7 +17,14 @@ from ai_routes import router as ai_router
 
 
 from livekit import api as livekit_api
+import httpx
 import os
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # carrega variáveis do arquivo .env, se existir (uso local)
+except ImportError:
+    pass  # em produção (Render), as variáveis já vêm configuradas no painel
 
 try:
     import cohere
@@ -683,6 +690,24 @@ async def get_livekit_token(room: str, username: str):
         "url": LIVEKIT_URL,
         "token": token.to_jwt(),
     }
+
+@app.get("/api/music-search")
+async def music_search(q: str):
+    q = (q or "").strip()
+    if not q:
+        return {"data": []}
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.get(
+                "https://api.deezer.com/search",
+                params={"q": q, "limit": 20},
+            )
+        resp.raise_for_status()
+        return resp.json()
+    except httpx.HTTPError as e:
+        logger.error(f"Erro ao buscar música no Deezer: {e}")
+        raise HTTPException(status_code=502, detail="Erro ao buscar músicas. Tente novamente.")
 @app.post("/api/auth/register")
 async def register(body: dict):
     username = (body.get("username") or "").strip()
