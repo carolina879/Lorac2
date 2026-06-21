@@ -34,10 +34,21 @@ except ImportError:
     logger_tmp = logging.getLogger("studysync")
     logger_tmp.warning("  pacote cohere não instalado. Execute: pip install cohere")
 
+try:
+    import psycopg2
+    from psycopg2.extras import Json as PgJson
+    from psycopg2.pool import SimpleConnectionPool
+    PSYCOPG2_AVAILABLE = True
+except ImportError:
+    PSYCOPG2_AVAILABLE = False
+    logger_tmp = logging.getLogger("studysync")
+    logger_tmp.warning("  pacote psycopg2 não instalado. Execute: pip install psycopg2-binary")
+
 LIVEKIT_URL = os.getenv("LIVEKIT_URL", "")
 LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", "")
 LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", "")
 COHERE_API_KEY = os.getenv("COHERE_API_KEY", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("studysync")
@@ -138,6 +149,297 @@ def _hash_password(password: str) -> str:
     return hashlib.sha256(password.strip().encode()).hexdigest()
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# Persistência em PostgreSQL (Neon)
+#
+# A aplicação continua operando com o estado em memória (MemoryDatabase),
+# mas agora cada gravação (`_save_to_file`) e a carga inicial (`load_data`)
+# usam o banco Postgres da Neon em vez de arquivos .json locais. Isso resolve
+# a perda de dados em plataformas com disco efêmero (Render, Vercel, etc.)
+# Se DATABASE_URL não estiver configurada (ou psycopg2 não instalado), o
+# sistema cai automaticamente de volta para os arquivos JSON locais.
+# ──────────────────────────────────────────────────────────────────────────
+
+_pg_pool = None
+_pg_logger = logging.getLogger("studysync.postgres")
+_SCHEMA_SQL_PATH = pathlib.Path(__file__).parent / "backend" / "schema.sql"
+
+
+def postgres_enabled() -> bool:
+    return bool(DATABASE_URL) and PSYCOPG2_AVAILABLE
+
+
+def get_pg_pool():
+    global _pg_pool
+    if _pg_pool is None:
+        _pg_pool = SimpleConnectionPool(1, 10, dsn=DATABASE_URL, connect_timeout=10)
+        _init_pg_schema()
+        _pg_logger.info("✅ Conectado ao PostgreSQL (Neon)")
+    return _pg_pool
+
+
+def _init_pg_schema():
+    """Cria (se não existirem) todas as tabelas relacionais definidas em backend/schema.sql."""
+    conn = _pg_pool.getconn()
+    try:
+        sql = _SCHEMA_SQL_PATH.read_text(encoding="utf-8")
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute(sql)
+    finally:
+        _pg_pool.putconn(conn)
+
+
+def _none_if_blank(value):
+    return value if value else None
+
+
+def pg_save_all_data(db: "MemoryDatabase") -> None:
+    """Persiste todo o estado em memória nas tabelas relacionais (substitui o conteúdo atual)."""
+    pool = get_pg_pool()
+    conn = pool.getconn()
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    TRUNCATE TABLE
+                        turma_exercicios, turma_avisos, turma_videos, turma_materias,
+                        turma_students, turmas, study_sessions, calendar_events,
+                        private_messages, messages, global_exercises, rooms, users
+                    CASCADE
+                    """
+                )
+
+                for u in db.users.values():
+                    cur.execute(
+                        """
+                        INSERT INTO users (id, username, email, password_hash, role, avatar,
+                                            area, bio, goal_minutes, subject_goals, flashcards, created_at)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        """,
+                        (u.id, u.username, _none_if_blank(u.email), u.password_hash, u.role, u.avatar,
+                         u.area, u.bio, u.goal_minutes, PgJson(u.subject_goals or {}),
+                         PgJson(u.flashcards or []), u.created_at),
+                    )
+
+                for r in db.rooms.values():
+                    cur.execute(
+                        "INSERT INTO rooms (id, name, password_hash, created_at) VALUES (%s,%s,%s,%s)",
+                        (r.id, r.name, r.password_hash, r.created_at),
+                    )
+
+                for m in db.messages.values():
+                    cur.execute(
+                        """
+                        INSERT INTO messages (id, room_id, user_id, username, content, subtype, reactions, timestamp)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                        """,
+                        (m.id, m.room_id, _none_if_blank(m.user_id), m.username, m.content,
+                         m.subtype, PgJson(m.reactions or {}), m.timestamp),
+                    )
+
+                for ev in db.calendar_events.values():
+                    cur.execute(
+                        """
+                        INSERT INTO calendar_events (id, user_id, title, date, description, created_at)
+                        VALUES (%s,%s,%s,%s,%s,%s)
+                        """,
+                        (ev.id, ev.user_id, ev.title, ev.date, ev.description, ev.created_at),
+                    )
+
+                for s in db.study_sessions.values():
+                    cur.execute(
+                        """
+                        INSERT INTO study_sessions (id, user_id, room_id, start_time, end_time, duration_seconds)
+                        VALUES (%s,%s,%s,%s,%s,%s)
+                        """,
+                        (s.id, s.user_id, _none_if_blank(s.room_id), s.start_time, s.end_time, s.duration_seconds),
+                    )
+
+                for pm in db.private_messages:
+                    cur.execute(
+                        """
+                        INSERT INTO private_messages (id, from_id, to_id, from_name, content, subtype, timestamp)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s)
+                        """,
+                        (pm.id, pm.from_id, pm.to_id, pm.from_name, pm.content, pm.subtype, pm.timestamp),
+                    )
+
+                for t in db.turmas.values():
+                    cur.execute(
+                        """
+                        INSERT INTO turmas (id, name, description, icon, code, professor_id, professor_name, created_at)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                        """,
+                        (t.id, t.name, t.description, t.icon, t.code, t.professor_id, t.professor_name, t.createdAt),
+                    )
+                    for st in t.students:
+                        cur.execute(
+                            """
+                            INSERT INTO turma_students (turma_id, user_id, username, email, joined_at)
+                            VALUES (%s,%s,%s,%s,%s)
+                            ON CONFLICT (turma_id, user_id) DO NOTHING
+                            """,
+                            (t.id, st.get("id"), st.get("username", ""), st.get("email", ""),
+                             st.get("joinedAt") or datetime.now().isoformat()),
+                        )
+                    for mat in t.materias:
+                        cur.execute(
+                            "INSERT INTO turma_materias (id, turma_id, name, icon) VALUES (%s,%s,%s,%s)",
+                            (mat.get("id"), t.id, mat.get("name", ""), mat.get("icon", "📖")),
+                        )
+                    for vid in t.videos:
+                        cur.execute(
+                            "INSERT INTO turma_videos (id, turma_id, data, created_at) VALUES (%s,%s,%s,%s)",
+                            (vid.get("id"), t.id, PgJson(vid), vid.get("createdAt") or datetime.now().isoformat()),
+                        )
+                    for av in t.avisos:
+                        cur.execute(
+                            "INSERT INTO turma_avisos (id, turma_id, data, created_at) VALUES (%s,%s,%s,%s)",
+                            (av.get("id"), t.id, PgJson(av), av.get("createdAt") or datetime.now().isoformat()),
+                        )
+                    for ex in t.exercicios:
+                        respostas = ex.get("respostas", {})
+                        cur.execute(
+                            "INSERT INTO turma_exercicios (id, turma_id, data, respostas, created_at) VALUES (%s,%s,%s,%s,%s)",
+                            (ex.get("id"), t.id, PgJson(ex), PgJson(respostas), ex.get("createdAt") or datetime.now().isoformat()),
+                        )
+
+                for gex in db.global_exercises:
+                    cur.execute(
+                        "INSERT INTO global_exercises (id, data, shared_by, created_at) VALUES (%s,%s,%s,%s)",
+                        (gex.get("id", str(uuid.uuid4())), PgJson(gex), gex.get("shared_by", ""),
+                         gex.get("createdAt") or datetime.now().isoformat()),
+                    )
+    finally:
+        pool.putconn(conn)
+
+
+def pg_load_all_data() -> dict:
+    """Lê todas as tabelas relacionais e remonta a mesma estrutura usada em memória."""
+    pool = get_pg_pool()
+    conn = pool.getconn()
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("""SELECT id, username, email, password_hash, role, avatar, area, bio,
+                                       goal_minutes, subject_goals, flashcards, created_at FROM users""")
+                users = {}
+                for row in cur.fetchall():
+                    uid = str(row[0])
+                    users[uid] = {
+                        "id": uid, "username": row[1], "email": row[2] or "", "password_hash": row[3],
+                        "role": row[4], "avatar": row[5], "area": row[6], "bio": row[7],
+                        "goal_minutes": row[8], "subject_goals": row[9] or {}, "flashcards": row[10] or [],
+                        "created_at": row[11].isoformat(),
+                    }
+
+                cur.execute("SELECT id, name, password_hash, created_at FROM rooms")
+                rooms = {}
+                for row in cur.fetchall():
+                    rid = str(row[0])
+                    rooms[rid] = {"id": rid, "name": row[1], "password_hash": row[2], "created_at": row[3].isoformat()}
+
+                cur.execute("""SELECT id, room_id, user_id, username, content, subtype, reactions, timestamp FROM messages""")
+                messages = {}
+                for row in cur.fetchall():
+                    mid = str(row[0])
+                    messages[mid] = {
+                        "id": mid, "room_id": str(row[1]), "user_id": str(row[2]) if row[2] else "",
+                        "username": row[3], "content": row[4], "subtype": row[5],
+                        "reactions": row[6] or {}, "timestamp": row[7].isoformat(),
+                    }
+
+                cur.execute("SELECT id, user_id, title, date, description, created_at FROM calendar_events")
+                calendar_events = {}
+                for row in cur.fetchall():
+                    eid = str(row[0])
+                    calendar_events[eid] = {
+                        "id": eid, "user_id": str(row[1]), "title": row[2], "date": row[3],
+                        "description": row[4], "created_at": row[5].isoformat(),
+                    }
+
+                cur.execute("SELECT id, user_id, room_id, start_time, end_time, duration_seconds FROM study_sessions")
+                study_sessions = {}
+                for row in cur.fetchall():
+                    sid = str(row[0])
+                    study_sessions[sid] = {
+                        "id": sid, "user_id": str(row[1]), "room_id": str(row[2]) if row[2] else "",
+                        "start_time": row[3].isoformat(), "end_time": row[4].isoformat(),
+                        "duration_seconds": row[5],
+                    }
+
+                cur.execute("SELECT id, from_id, to_id, from_name, content, subtype, timestamp FROM private_messages")
+                private_messages = []
+                for row in cur.fetchall():
+                    private_messages.append({
+                        "id": str(row[0]), "from_id": str(row[1]), "to_id": str(row[2]), "from_name": row[3],
+                        "content": row[4], "subtype": row[5], "timestamp": row[6].isoformat(),
+                    })
+
+                cur.execute("""SELECT id, name, description, icon, code, professor_id, professor_name, created_at FROM turmas""")
+                turmas = {}
+                for row in cur.fetchall():
+                    tid = str(row[0])
+                    turmas[tid] = {
+                        "id": tid, "name": row[1], "description": row[2], "icon": row[3], "code": row[4],
+                        "professor_id": str(row[5]), "professor_name": row[6], "createdAt": row[7].isoformat(),
+                        "students": [], "materias": [], "videos": [], "avisos": [], "exercicios": [],
+                    }
+
+                cur.execute("SELECT turma_id, user_id, username, email, joined_at FROM turma_students")
+                for row in cur.fetchall():
+                    tid = str(row[0])
+                    if tid in turmas:
+                        turmas[tid]["students"].append({
+                            "id": str(row[1]), "username": row[2], "email": row[3], "joinedAt": row[4].isoformat(),
+                        })
+
+                cur.execute("SELECT id, turma_id, name, icon FROM turma_materias")
+                for row in cur.fetchall():
+                    tid = str(row[1])
+                    if tid in turmas:
+                        turmas[tid]["materias"].append({"id": str(row[0]), "name": row[2], "icon": row[3]})
+
+                cur.execute("SELECT turma_id, data FROM turma_videos ORDER BY created_at")
+                for row in cur.fetchall():
+                    tid = str(row[0])
+                    if tid in turmas:
+                        turmas[tid]["videos"].append(row[1])
+
+                cur.execute("SELECT turma_id, data FROM turma_avisos ORDER BY created_at")
+                for row in cur.fetchall():
+                    tid = str(row[0])
+                    if tid in turmas:
+                        turmas[tid]["avisos"].append(row[1])
+
+                cur.execute("SELECT turma_id, data, respostas FROM turma_exercicios ORDER BY created_at")
+                for row in cur.fetchall():
+                    tid = str(row[0])
+                    if tid in turmas:
+                        ex = dict(row[1])
+                        ex["respostas"] = row[2] or {}
+                        turmas[tid]["exercicios"].append(ex)
+
+                cur.execute("SELECT data, shared_by, created_at FROM global_exercises ORDER BY created_at")
+                global_exercises = []
+                for row in cur.fetchall():
+                    gex = dict(row[0])
+                    gex["shared_by"] = row[1]
+                    gex.setdefault("createdAt", row[2].isoformat())
+                    global_exercises.append(gex)
+
+                return {
+                    "users": users, "rooms": rooms, "messages": messages,
+                    "calendar_events": calendar_events, "study_sessions": study_sessions,
+                    "private_messages": private_messages, "turmas": turmas,
+                    "global_exercises": global_exercises,
+                }
+    finally:
+        pool.putconn(conn)
+
+
 class MemoryDatabase:
     def __init__(self):
         self.users: Dict[str, User] = {}
@@ -165,7 +467,7 @@ class MemoryDatabase:
             logger.info(f"✅ {len(self.rooms)} salas criadas")
 
     def _save_to_file(self):
-        
+
         data = {
             "users": {uid: asdict(u) for uid, u in self.users.items()},
             "rooms": {rid: asdict(r) for rid, r in self.rooms.items()},
@@ -174,30 +476,62 @@ class MemoryDatabase:
             "study_sessions": {sid: asdict(s) for sid, s in self.study_sessions.items()},
         }
         data["private_messages"] = [asdict(m) for m in self.private_messages]
+        turmas_data = {"turmas": [asdict(t) for t in self.turmas.values()]}
+        global_exercises_data = {"exercises": self.global_exercises}
+
+        if postgres_enabled():
+            try:
+                pg_save_all_data(self)
+                return
+            except Exception as e:
+                logger.error(f"Erro ao salvar no PostgreSQL: {e}. Usando arquivos locais como fallback.")
+
         try:
             with open(DATA_FILE, 'w', encoding='utf-8') as f:  # Add encoding
                 json.dump(data, f, indent=2)
         except Exception as e:
             logger.error(f"Erro ao salvar dados principais: {e}")
 
-        turmas_data = {"turmas": [asdict(t) for t in self.turmas.values()]}
         try:
             with open(TURMAS_FILE, 'w', encoding='utf-8') as f:  # Add encoding
                 json.dump(turmas_data, f, indent=2)
         except Exception as e:
             logger.error(f"Erro ao salvar turmas: {e}")
 
-        
         try:
             with open(GLOBAL_EXERCISES_FILE, 'w', encoding='utf-8') as f:
-                json.dump({"exercises": self.global_exercises}, f, indent=2)
+                json.dump(global_exercises_data, f, indent=2)
         except Exception as e:
             logger.error(f"Erro ao salvar banco global: {e}")
 
     def load_data(self):
-      
+
+        if postgres_enabled():
+            try:
+                self._load_from_postgres()
+                return
+            except Exception as e:
+                logger.error(f"Erro ao carregar dados do PostgreSQL: {e}. Usando arquivos locais como fallback.")
+
+        self._load_from_files()
+
+    def _load_from_postgres(self):
+        data = pg_load_all_data()
+        self.users = {uid: User(**u) for uid, u in data.get("users", {}).items()}
+        self.rooms = {rid: Room(**r) for rid, r in data.get("rooms", {}).items()}
+        self.messages = {mid: Message(**m) for mid, m in data.get("messages", {}).items()}
+        self.calendar_events = {eid: CalendarEvent(**e) for eid, e in data.get("calendar_events", {}).items()}
+        self.study_sessions = {sid: StudySession(**s) for sid, s in data.get("study_sessions", {}).items()}
+        self.private_messages = [PrivateMessage(**m) for m in data.get("private_messages", [])]
+        self.turmas = {tid: Turma(**t) for tid, t in data.get("turmas", {}).items()}
+        self.global_exercises = data.get("global_exercises", [])
+
+        logger.info(f"✅ Dados carregados do PostgreSQL (Neon): {len(self.users)} usuários, {len(self.rooms)} salas, {len(self.turmas)} turmas")
+
+    def _load_from_files(self):
+
         try:
-            with open(DATA_FILE, 'r', encoding='utf-8') as f:  
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             self.users = {uid: User(**u) for uid, u in data.get("users", {}).items()}
             self.rooms = {rid: Room(**r) for rid, r in data.get("rooms", {}).items()}
@@ -210,7 +544,7 @@ class MemoryDatabase:
         except json.JSONDecodeError as e:
             logger.error(f"Erro ao decodificar JSON de dados principais: {e}. Inicializando vazio.")
 
-      
+
         try:
             with open(TURMAS_FILE, 'r', encoding='utf-8') as f:  # Add encoding
                 data = json.load(f)
@@ -222,7 +556,7 @@ class MemoryDatabase:
             logger.error(f"Erro ao decodificar JSON de turmas: {e}. Inicializando vazio.")
             self.turmas = {}
 
-       
+
         try:
             with open(GLOBAL_EXERCISES_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -230,7 +564,7 @@ class MemoryDatabase:
         except FileNotFoundError:
             self.global_exercises = []
 
-        logger.info(f"✅ Dados carregados: {len(self.users)} usuários, {len(self.rooms)} salas, {len(self.turmas)} turmas")
+        logger.info(f"✅ Dados carregados de arquivos locais: {len(self.users)} usuários, {len(self.rooms)} salas, {len(self.turmas)} turmas")
 
 
     def get_user_by_id(self, user_id: str) -> Optional[dict]:
@@ -670,6 +1004,19 @@ app.mount("/static", StaticFiles(directory=os.path.join(_BASE_DIR, "static")), n
 @app.get("/")
 async def root():
     return FileResponse(os.path.join(_BASE_DIR, "index.html"))
+
+@app.get("/api/health")
+async def health_check():
+    status = {"status": "ok", "database": "local_files"}
+    if postgres_enabled():
+        try:
+            get_pg_pool()
+            status["database"] = "postgresql (Neon)"
+        except Exception as e:
+            status["status"] = "degraded"
+            status["database"] = "postgresql (erro de conexão)"
+            status["error"] = str(e)
+    return status
 
 @app.get("/api/livekit-token")
 async def get_livekit_token(room: str, username: str):
