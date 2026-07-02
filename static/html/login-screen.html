@@ -53,7 +53,7 @@
       font-family: var(--font-body);
       background: var(--bg-0);
       color: var(--text-0);
-      overflow: auto;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -73,10 +73,10 @@
     
     .login-panel-left {
       position: relative;
-      width: 52%;
+      flex: 1 1 52%;
+      min-width: 0;
       background: var(--bg-1);
       -webkit-font-smoothing: antialiased; 
-
     }
 
     .login-panel-left::before {
@@ -94,14 +94,14 @@
       pointer-events: none;
     }
     .login-glow-1 {
-      width: 480px; height: 480px;
-      top: -120px; left: -80px;
+      width: min(480px, 40vw); height: min(480px, 40vw);
+      top: -8%; left: -8%;
       background: radial-gradient(circle, rgba(232,160,74,.15) 0%, transparent 70%);
       animation: glowDrift 8s ease-in-out infinite alternate;
     }
     .login-glow-2 {
-      width: 360px; height: 360px;
-      bottom: -100px; right: -60px;
+      width: min(360px, 32vw); height: min(360px, 32vw);
+      bottom: -8%; right: -6%;
       background: radial-gradient(circle, rgba(201,106,74,.12) 0%, transparent 70%);
       animation: glowDrift 12s ease-in-out infinite alternate-reverse;
     }
@@ -116,7 +116,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      padding: 48px 52px;
+      padding: clamp(16px, 4vw, 52px);
     }
 
     .login-logo {
@@ -259,7 +259,8 @@
 
     
     .login-panel-right {
-      width: 48%;
+      flex: 1 1 48%;
+      min-width: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -270,6 +271,7 @@
     .login-form-card {
       width: 100%;
       max-width: 380px;
+      box-sizing: border-box;
       opacity: 0;
       animation: fadeUp .55s var(--ease-out) .3s forwards;
     }
@@ -518,10 +520,20 @@
     
     @media (max-width: 860px) {
       #screen-login { flex-direction: column; overflow-y: auto; }
-      .login-panel-left { width: 100%; min-height: 260px; }
-      .login-panel-right { width: 100%; padding: 40px 24px 60px; }
+      .login-panel-left { flex-basis: 100%; min-height: 260px; }
+      .login-panel-right { flex-basis: 100%; padding: 40px 24px 60px; }
       .login-hero { margin-top: 24px; }
       .login-headline { font-size: 34px; }
+    }
+
+    @media (max-width: 480px) {
+      .login-headline { font-size: clamp(22px, 8vw, 30px); }
+      .login-subtitle { max-width: 100%; font-size: 14px; }
+      .login-features { display: none; }
+      .login-panel-left-inner { padding: 20px; }
+      .login-panel-right { padding: 28px 18px 48px; }
+      .login-form-card { max-width: 340px; }
+      .login-logo-text { font-size: 18px; }
     }
   </style>
 </head>
