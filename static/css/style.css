@@ -3577,3 +3577,718 @@ body.light-theme .code-console-content { background: #ffffff; color: #333; }
   min-height: 100vh !important;
   overflow: auto !important;
 }
+
+/* ============================================================================
+   RESPONSIVIDADE MOBILE - CELULARES E TABLETS
+   ============================================================================ */
+
+/* TABLETS: 768px e acima */
+@media (max-width: 768px) {
+  /* Header responsivo */
+  .app-header {
+    padding: 0 16px;
+    height: 52px;
+    gap: 12px;
+  }
+  
+  /* Layout responsivo */
+  .dashboard-main,
+  .rooms-main,
+  .calendar-main,
+  .profile-main,
+  .ranking-main,
+  .forum-main,
+  .tarefas-main,
+  .gdoc-page {
+    padding: 20px 16px !important;
+  }
+  
+  /* Heading responsivo */
+  .rooms-header h1,
+  .dash-header h1,
+  .ranking-main h1,
+  .profile-main h1 {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+  
+  /* Search bar responsivo */
+  .search-bar {
+    max-width: 100%;
+    flex: 1;
+  }
+  
+  /* Grid responsivo */
+  .rooms-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+  
+  /* Sidebar responsivo */
+  .study-sidebar {
+    width: 240px;
+    padding: 16px 12px;
+  }
+  
+  /* Stats grid */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  /* Calendar responsivo */
+  .cal-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .cal-left,
+  .cal-right {
+    width: 100%;
+  }
+  
+  /* Modal responsivo */
+  .modal-content {
+    width: 90vw !important;
+    max-width: 90vw !important;
+  }
+  
+  /* Badges e pins */
+  .badge-card {
+    min-width: 60px;
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+  
+  .pin {
+    width: 140px;
+    min-height: 70px;
+  }
+  
+  /* Código */
+  .code-editor {
+    font-size: 11px;
+  }
+  
+  .code-line-numbers {
+    width: 35px;
+    font-size: 9px;
+  }
+}
+
+/* CELULARES GRANDES: 600px a 767px */
+@media (max-width: 767px) {
+  /* Sidebar para tablet pequeno */
+  .study-sidebar {
+    display: none;
+  }
+  
+  .rooms-main,
+  .dashboard-main,
+  .calendar-main,
+  .profile-main {
+    max-width: 100% !important;
+    padding: 16px 12px !important;
+  }
+  
+  .rooms-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Profile hero responsivo */
+  .profile-hero {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  /* Theme toggle */
+  .theme-toggle-btn {
+    padding: 8px 10px;
+  }
+  
+  .theme-toggle-btn .theme-label {
+    display: none;
+  }
+}
+
+/* CELULARES MÉDIOS: 481px a 599px */
+@media (max-width: 599px) {
+  /* Header bem compacto */
+  .app-header {
+    padding: 0 12px;
+    height: 48px;
+    gap: 8px;
+  }
+  
+  .header-brand {
+    gap: 6px;
+  }
+  
+  .header-user {
+    font-size: 11px;
+    gap: 6px;
+  }
+  
+  /* Conteúdo principal */
+  .dashboard-main,
+  .rooms-main,
+  .calendar-main,
+  .profile-main,
+  .ranking-main,
+  .forum-main,
+  .tarefas-main,
+  .gdoc-page {
+    padding: 12px 12px !important;
+  }
+  
+  /* Headings */
+  .rooms-header h1,
+  .dash-header h1,
+  .ranking-main h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .rooms-header p {
+    font-size: 12px;
+  }
+  
+  /* Rooms actions */
+  .rooms-actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .search-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Grid single column */
+  .rooms-grid,
+  .stats-grid,
+  .materias-grid-new,
+  .exercicios-list,
+  .avisos-list,
+  .videos-list {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+  
+  /* Cards compactos */
+  .room-card,
+  .stat-card,
+  .materia-card-new,
+  .exercicio-card,
+  .aviso-card,
+  .video-card {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+  }
+  
+  .room-card-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .room-card-title {
+    font-size: 14px;
+  }
+  
+  .room-card-text {
+    font-size: 12px;
+  }
+  
+  /* Badges */
+  .badge-card {
+    min-width: 50px;
+    padding: 8px 6px;
+    font-size: 9px;
+  }
+  
+  /* Pins */
+  .pin {
+    width: 120px;
+    min-height: 60px;
+    padding: 10px 8px;
+  }
+  
+  .pin-content {
+    font-size: 10px;
+  }
+  
+  /* Subjects */
+  .subject-name {
+    width: 70px;
+    font-size: 10px;
+  }
+  
+  .subject-hours {
+    width: 35px;
+    font-size: 9px;
+  }
+  
+  /* Modal responsivo */
+  .modal-content {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    padding: 16px !important;
+  }
+  
+  /* Buttons responsivo */
+  .btn, button {
+    padding: 10px 14px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+  
+  /* Input responsivo */
+  input, textarea, select {
+    font-size: 16px;
+    padding: 10px 12px;
+    min-height: 40px;
+  }
+  
+  /* Code editor responsivo */
+  .code-editor {
+    font-size: 10px;
+    max-height: 300px;
+  }
+  
+  .code-line-numbers {
+    width: 32px;
+    font-size: 8px;
+  }
+  
+  /* Forum hero */
+  .forum-hero,
+  .tarefas-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 12px 0 !important;
+    gap: 12px;
+  }
+  
+  /* Tarefas mode switch */
+  .tarefas-mode-switch {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  /* Calendar responsivo */
+  .cal-layout {
+    flex-direction: column;
+  }
+  
+  .cal-left,
+  .cal-right {
+    width: 100%;
+  }
+  
+  /* Translator areas */
+  .translator-areas {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Quiz responsivo */
+  .quiz-options-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* CELULARES PEQUENOS: até 480px */
+@media (max-width: 480px) {
+  /* Layout móvel otimizado */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  html, body {
+    font-size: 14px;
+  }
+  
+  /* Header ultra-compacto */
+  .app-header {
+    padding: 0 8px;
+    height: 44px;
+    gap: 6px;
+  }
+  
+  .header-brand {
+    gap: 4px;
+  }
+  
+  .header-brand-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+  
+  .header-brand-name {
+    font-size: 13px;
+    display: none;
+  }
+  
+  .header-user {
+    font-size: 10px;
+    gap: 4px;
+    display: none;
+  }
+  
+  /* Conteúdo fluido */
+  .dashboard-main,
+  .rooms-main,
+  .calendar-main,
+  .profile-main,
+  .ranking-main,
+  .forum-main,
+  .tarefas-main,
+  .gdoc-page {
+    padding: 8px 8px !important;
+    max-width: 100% !important;
+  }
+  
+  /* Headings */
+  .rooms-header h1,
+  .dash-header h1,
+  .ranking-main h1,
+  .profile-main h1 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .rooms-header p,
+  .dash-header p {
+    font-size: 11px;
+  }
+  
+  /* Sections e containers */
+  .rooms-actions {
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  
+  /* Grids em coluna única */
+  .rooms-grid,
+  .stats-grid,
+  .materias-grid-new,
+  .exercicios-list,
+  .avisos-list,
+  .videos-list,
+  .kanban-board,
+  .gallery-grid {
+    grid-template-columns: 1fr !important;
+    gap: 6px;
+  }
+  
+  /* Cards super compactos */
+  .room-card,
+  .stat-card,
+  .materia-card-new,
+  .exercicio-card,
+  .aviso-card,
+  .video-card,
+  .kanban-column {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    gap: 6px;
+  }
+  
+  .room-card-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  
+  .room-card-title {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  
+  .room-card-text {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  
+  /* Badges super compactos */
+  .badge-card {
+    min-width: 45px;
+    padding: 6px 4px;
+    font-size: 8px;
+  }
+  
+  .badge-icon {
+    font-size: 14px;
+  }
+  
+  .badge-name {
+    font-size: 7px;
+  }
+  
+  /* Pins */
+  .pin {
+    width: 100px;
+    min-height: 50px;
+    padding: 8px 6px;
+  }
+  
+  .pin-content {
+    font-size: 9px;
+  }
+  
+  /* Subjects */
+  .subject-name {
+    width: 60px;
+    font-size: 9px;
+  }
+  
+  .subject-hours {
+    width: 30px;
+    font-size: 8px;
+  }
+  
+  /* Touch targets otimizados (mínimo 44x44px) */
+  .btn,
+  button,
+  .nav-btn,
+  .tab,
+  .filter-tab {
+    padding: 10px 12px;
+    font-size: 12px;
+    min-height: 40px;
+    min-width: 40px;
+  }
+  
+  /* Inputs otimizados */
+  input,
+  textarea,
+  select,
+  .search-bar input {
+    font-size: 16px !important;
+    padding: 10px;
+    min-height: 40px;
+  }
+  
+  /* Modal em full screen */
+  .modal-content,
+  .modal-overlay {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    max-height: 90vh !important;
+    padding: 12px !important;
+    border-radius: 12px 12px 0 0 !important;
+    margin: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  
+  .modal-header {
+    padding: 12px;
+    margin: -12px -12px 12px -12px;
+  }
+  
+  /* Messages responsivos */
+  .msg-bubble {
+    max-width: 90%;
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+  }
+  
+  .msg-image {
+    max-width: 150px;
+  }
+  
+  /* Forms */
+  .form-group {
+    margin-bottom: 12px;
+  }
+  
+  .form-label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  
+  /* Tables responsivos */
+  table {
+    font-size: 11px;
+  }
+  
+  td, th {
+    padding: 8px 4px;
+  }
+  
+  /* Code editor mobile */
+  .code-editor {
+    font-size: 10px;
+    max-height: 250px;
+    overflow: auto;
+  }
+  
+  .code-line-numbers {
+    width: 28px;
+    font-size: 7px;
+  }
+  
+  .code-console {
+    font-size: 10px;
+    min-height: 100px;
+    max-height: 120px;
+  }
+  
+  /* Avisos compactos */
+  .avisos-list,
+  .exercicios-list,
+  .videos-list {
+    gap: 6px;
+  }
+  
+  .aviso-card,
+  .exercicio-card,
+  .video-card {
+    padding: 10px 12px;
+  }
+  
+  /* Forum hero */
+  .forum-hero,
+  .tarefas-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 8px 0 !important;
+    gap: 8px;
+  }
+  
+  .tarefas-mode-switch {
+    width: 100%;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .tarefas-mode-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  /* Calendar */
+  .cal-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .cal-left,
+  .cal-right {
+    width: 100%;
+  }
+  
+  /* Profile */
+  .profile-hero {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    padding: 0;
+  }
+  
+  .profile-theme-toggle {
+    margin-left: 0;
+  }
+  
+  /* Kanban */
+  .kanban-board {
+    grid-template-columns: 1fr !important;
+    padding: 0 8px 20px !important;
+  }
+  
+  .tarefas-hero {
+    padding: 12px 8px 0 !important;
+  }
+  
+  .kanban-toolbar {
+    padding: 8px 8px 6px !important;
+  }
+  
+  /* Translator */
+  .translator-areas {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Quiz */
+  .quiz-question {
+    padding: 16px;
+  }
+  
+  .quiz-options-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+  
+  /* Hiding non-essential elements on mobile */
+  .theme-toggle-btn .theme-label,
+  .header-brand-name,
+  .header-user {
+    display: none;
+  }
+}
+
+/* CELULARES MUITO PEQUENOS: até 360px */
+@media (max-width: 360px) {
+  /* Ajustes extremos */
+  .app-header {
+    padding: 0 6px;
+    height: 42px;
+  }
+  
+  .rooms-header h1,
+  .dash-header h1 {
+    font-size: 18px;
+  }
+  
+  .room-card,
+  .stat-card {
+    padding: 8px 10px;
+  }
+  
+  .badge-card {
+    min-width: 40px;
+    font-size: 7px;
+    padding: 5px 3px;
+  }
+  
+  .pin {
+    width: 85px;
+    min-height: 45px;
+  }
+  
+  /* Ultra-compacto */
+  .dashboard-main,
+  .rooms-main {
+    padding: 6px 6px !important;
+  }
+  
+  input, textarea, select {
+    font-size: 16px !important;
+    padding: 8px;
+    min-height: 36px;
+  }
+  
+  .btn, button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+}

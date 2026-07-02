@@ -4129,6 +4129,96 @@ async function login() {
     }
   }
 
+  // Mapeia o valor usado no <select> de linguagem para o nome/versão que a
+  // API pública do Piston (https://github.com/engineer-man/piston) espera.
+  // Piston executa o código de verdade, isolado em containers — por isso
+  // só faz sentido rodar no navegador do usuário (front-end), nunca no
+  // backend do Lorac.
+  const PISTON_RUNTIMES = {
+    python: { language: 'python', version: '3.10.0', filename: 'main.py' },
+    csharp: { language: 'csharp', version: '6.12.0', filename: 'main.cs' }
+  };
+  const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
+
+  async function codeRunRemote(language, code) {
+    const runtime = PISTON_RUNTIMES[language];
+    if (!runtime) {
+      codeConsoleAddLine(`❌ Linguagem "${language}" não suportada para execução.`, 'error');
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const res = await fetch(PISTON_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          language: runtime.language,
+          version: runtime.version,
+          files: [{ name: runtime.filename, content: code }]
+        })
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        codeConsoleAddLine(`❌ Erro ao contatar o serviço de execução (HTTP ${res.status}).`, 'error');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Erro de compilação (relevante para C#)
+      if (data.compile && data.compile.code !== 0) {
+        const out = (data.compile.stderr || data.compile.output || '').trim();
+        codeConsoleAddLine('❌ Erro de compilação:', 'error');
+        out.split('\n').forEach(line => line && codeConsoleAddLine(line, 'error'));
+        return;
+      }
+
+      const run = data.run || {};
+      const stdout = (run.stdout || '').trim();
+      const stderr = (run.stderr || '').trim();
+
+      if (stdout) {
+        stdout.split('\n').forEach(line => codeConsoleAddLine(line, 'output'));
+      }
+      if (stderr) {
+        stderr.split('\n').forEach(line => codeConsoleAddLine(line, 'error'));
+      }
+      if (!stdout && !stderr) {
+        codeConsoleAddLine('✓ Código executado sem saída.', 'success');
+      }
+
+      if (run.code !== 0 && !stderr) {
+        codeConsoleAddLine(`⚠️ Processo encerrado com código ${run.code}.`, 'warning');
+      }
+
+      if (!stderr && run.code === 0 && !state.badges.some(b => b.id === 'code_master')) {
+        const codeMasterBadge = state.availableBadges.find(b => b.id === 'code_master');
+        if (codeMasterBadge) {
+          state.badges.push({ ...codeMasterBadge, unlockedAt: Date.now() });
+          saveBadges();
+          renderBadges();
+          pushNotif('💻', `🏆 Conquista desbloqueada: <strong>${codeMasterBadge.name}</strong>! ${codeMasterBadge.desc}`, true);
+        }
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        codeConsoleAddLine('❌ Timeout: o serviço de execução demorou demais para responder.', 'error');
+      } else {
+        codeConsoleAddLine(`❌ Não foi possível executar o código: ${err.message}`, 'error');
+        codeConsoleAddLine('💡 Verifique sua conexão com a internet e tente novamente.', 'info');
+      }
+    } finally {
+      codeConsoleAddLine('─'.repeat(40), 'separator');
+      codeConsoleAddLine('✨ Execução finalizada', 'success');
+    }
+  }
+
   function codeRun() {
     console.log("🚀 Executando codeRun...");
     
@@ -4228,17 +4318,15 @@ async function login() {
       } catch (err) {
         codeConsoleAddLine(`❌ Erro de sintaxe: ${err.message}`, 'error');
       }
+    } else if (language === 'python' || language === 'csharp') {
+      // Execução real via Piston (sandbox remoto) — não bloqueia o resto da função.
+      codeRunRemote(language, code);
+      return;
     } else {
-      codeConsoleAddLine(`⚠️ Modo simulação para ${language.toUpperCase()}`, 'warning');
-      codeConsoleAddLine(`💡 Dica: O código seria executado em um ambiente real.`, 'info');
-      codeConsoleAddLine(`📝 Seu código tem ${code.split('\n').length} linhas e ${code.length} caracteres.`, 'info');
-      
-      if (code.includes('console.log') || code.includes('print')) {
-        codeConsoleAddLine(`📢 Detectada tentativa de saída no console.`, 'info');
-      }
-      if (code.includes('function') || code.includes('=>')) {
-        codeConsoleAddLine(`📦 Detectada definição de função.`, 'info');
-      }
+      codeConsoleAddLine(`❌ Linguagem "${language}" não suportada.`, 'error');
+      codeConsoleAddLine('─'.repeat(40), 'separator');
+      codeConsoleAddLine('✨ Execução finalizada', 'success');
+      return;
     }
     
     codeConsoleAddLine('─'.repeat(40), 'separator');

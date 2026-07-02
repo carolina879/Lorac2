@@ -69,6 +69,15 @@
   },
   "messages": {},
   "calendar_events": {},
-  "study_sessions": {},
+  "study_sessions": {
+    "7cc452f4-cdc0-4ab2-9ac3-e63ae570cea6": {
+      "id": "7cc452f4-cdc0-4ab2-9ac3-e63ae570cea6",
+      "user_id": "d5180907-7cd3-4981-b978-5a996f0972a4",
+      "room_id": "f3047d60-784f-402d-88f6-3b6c4ca7e325",
+      "start_time": "2026-06-20T18:10:36.884206",
+      "end_time": "2026-06-20T18:22:59.442332",
+      "duration_seconds": 742
+    }
+  },
   "private_messages": []
 }
